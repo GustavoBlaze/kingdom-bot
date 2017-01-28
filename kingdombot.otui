@@ -1,0 +1,13 @@
+Window
+  !text: tr("Kingdom Bot")
+  width: 400
+  height: 200
+  @onEscape: self:hide()
+  @onEnter: self:hide()
+
+  Button
+    id: heal_button
+    !text: tr("Healing")
+    width: 70
+    anchors.top: parent.top
+    anchors.left: parent.left
