@@ -15,11 +15,9 @@ function toggle()
     
     if g_window:isVisible() then
         g_window:hide()
-        g_button:setOn(false)
     else
         g_window:show()
         g_window:focus(true)
-        g_button:setOn(true)
     end
 end
 

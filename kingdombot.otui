@@ -5,7 +5,7 @@ BotWindow < Window
     anchors.bottom: parent.bottom
     anchors.right: parent.right
     text-auto-resize: true
-    @onClick: modules.kingdom_bot.toggle()
+    @onClick: self:getParent():hide()
 
 BotWindow
   !text: tr("Kingdom Bot")
