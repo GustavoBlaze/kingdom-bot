@@ -1,0 +1,10 @@
+Module
+  name: kingdom_bot
+  description:
+  author: Gustavo Blaze
+  website: https://github.com/GustavoBlaze
+  sandboxed: true
+  scripts: [kingdombot]
+  @onLoad: init()
+  @onUnload: terminate()
+  autoload: true
