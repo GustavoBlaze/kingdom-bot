@@ -1,4 +1,13 @@
-Window
+BotWindow < Window
+  Button
+    id: close_button
+    !text: tr("close")
+    anchors.bottom: parent.bottom
+    anchors.right: parent.right
+    text-auto-resize: true
+    @onClick: modules.kingdom_bot.toggle()
+
+BotWindow
   !text: tr("Kingdom Bot")
   width: 400
   height: 200
