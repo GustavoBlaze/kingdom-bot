@@ -1,6 +1,8 @@
 BotWindow < Window
+  @onEscape: self:hide()
+  @onEnter: self:hide()
   Button
-    id: close_button
+    id: closeButton
     !text: tr("close")
     anchors.bottom: parent.bottom
     anchors.right: parent.right
@@ -9,13 +11,12 @@ BotWindow < Window
 
 BotWindow
   !text: tr("Kingdom Bot")
-  width: 400
+  id: menu
+  width: 350
   height: 200
-  @onEscape: self:hide()
-  @onEnter: self:hide()
 
   Button
-    id: heal_button
+    id: healingButton
     !text: tr("Healing")
     width: 70
     anchors.top: parent.top

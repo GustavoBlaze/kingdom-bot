@@ -1,0 +1,4 @@
+BotWindow
+  id: healingWindow
+  size: 400 320
+  !text: tr("Healing")
