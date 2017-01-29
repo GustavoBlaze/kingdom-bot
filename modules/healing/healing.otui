@@ -60,7 +60,7 @@ BotWindow
     anchors.bottom: minPercent.top
     anchors.left: minPercent.left
     anchors.right: maxPercent.right
-    !text: tr("Range")
+    !text: tr("Percent")
     text-align: center
     margin-bottom: 5
 
@@ -68,15 +68,29 @@ BotWindow
     id: perfil_list
     anchors.top: healType.bottom
     anchors.left: healType.left
-    anchors.right: maxPercent.right
     anchors.bottom: closeButton.top
-    margin-right: 40
+    width: 320
     margin-bottom: 20
     margin-top: 20
     padding: 1
     phantom: true
     auto-focus: first
     vertical-scrollbar: perfil_scrollbar
+  VerticalSeparator
+    anchors.top: prev.top
+    anchors.bottom: prev.bottom
+    anchors.left: prev.left
+    margin-left: 80
+  VerticalSeparator
+    anchors.top: prev.top
+    anchors.bottom: prev.bottom
+    anchors.left: prev.right
+    margin-left: 100
+  VerticalSeparator
+    anchors.top: prev.top
+    anchors.bottom: prev.bottom
+    anchors.left: prev.right
+    margin-left: 65
   VerticalScrollBar
     id: perfil_scrollbar
     anchors.top: perfil_list.top
@@ -84,16 +98,24 @@ BotWindow
     anchors.bottom: perfil_list.bottom
     step: 18
     pixels-scroll: true
-  OkButton
+  Button
     id: insert_button
+    !text: tr("<<")
+    width: 30
     anchors.top: perfil_scrollbar.top
     anchors.left: perfil_scrollbar.right
     margin-left: 10
-  NotButton
-    id: insert_button
+    !tooltip: tr("Insert")
+    @onClick: modules.kingdom_bot.healing.addPerfilToList()
+  Button
+    id: remove_button
+    !text: tr(">>")
     anchors.top: prev.bottom
     anchors.left: prev.left
+    anchors.right: prev.right
     margin-top: 5
+    !tooltip: tr("Remove")
+    @onClick: modules.kingdom_bot.healing.removePerfilFromList()
   CheckBox
     id: enable
     anchors.bottom: parent.bottom

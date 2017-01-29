@@ -18,6 +18,77 @@ NotButton < TopButton
   icon-size: 20 20
   icon-offset: 3 3
 
+HealPerfil < UIWidget
+  height: 14
+  background-color: alpha
+  &updateOnStates: |
+    function(self)
+      local children = self:getChildren()
+      for i=1,#children do
+        children[i]:setOn(self:isFocused())
+      end
+    end
+  @onFocusChange: self:updateOnStates()
+  @onSetup: self:updateOnStates()
+
+  $focus:
+    background-color: #ffffff22
+
+  Label
+    id: type
+    color: #bbbbbb
+    anchors.top: parent.top
+    anchors.left: parent.left
+    font: verdana-11px-monochrome
+    width: 80
+    background-color: alpha
+    text-align: center
+    text-offset: 2 0
+    border-right: 1
+    border-color: black
+    $on:
+      color: #ffffff
+  Label
+    id: spell
+    color: #bbbbbb
+    anchors.top: parent.top
+    anchors.left: prev.right
+    font: verdana-11px-monochrome
+    width: 100
+    background-color: alpha
+    text-align: center
+    text-offset: 2 0
+
+    $on:
+      color: #ffffff
+
+  Label
+    id: min
+    color: #bbbbbb
+    anchors.top: parent.top
+    anchors.left: prev.right
+    font: verdana-11px-monochrome
+    width: 65
+    background-color: alpha
+    text-align: center
+    text-offset: 2 0
+
+    $on:
+      color: #ffffff
+  Label
+    id: max
+    color: #bbbbbb
+    anchors.top: parent.top
+    anchors.left: prev.right
+    anchors.right: parent.right
+    font: verdana-11px-monochrome
+    background-color: alpha
+    text-align: center
+    text-offset: 2 0
+
+    $on:
+      color: #ffffff
+
 BotWindow
   !text: tr("Kingdom Bot")
   id: menu
