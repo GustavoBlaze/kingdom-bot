@@ -3,17 +3,28 @@ BotWindow < Window
   @onEnter: self:hide()
   Button
     id: closeButton
-    !text: tr("close")
+    !text: tr("Close")
     anchors.bottom: parent.bottom
     anchors.right: parent.right
     text-auto-resize: true
-    @onClick: self:getParent():hide()
+    @onClick: if self:getParent():getId() == "menu" then modules.kingdom_bot.toggle() else self:getParent():hide() end
+
+OkButton < TopButton
+  icon-source: images/ok_button
+  icon-size: 20 20
+  icon-offset: 3 2
+NotButton < TopButton
+  icon-source: images/not_button
+  icon-size: 20 20
+  icon-offset: 3 3
 
 BotWindow
   !text: tr("Kingdom Bot")
   id: menu
   width: 350
   height: 200
+  @onEscape: modules.kingdom_bot.toggle()
+  @onEnter: modules.kingdom_bot.toggle()
 
   Button
     id: healingButton

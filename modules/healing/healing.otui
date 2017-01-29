@@ -1,4 +1,108 @@
 BotWindow
   id: healingWindow
-  size: 400 320
+  size: 400 260
   !text: tr("Healing")
+
+  ComboBox
+    id: healType
+    anchors.top: parent.top
+    anchors.left: parent.left
+    width: 80
+    text-offset: 15 0
+    margin-top: 20
+    options: 
+      - Health
+      - Mana
+  Label
+    anchors.bottom: prev.top
+    anchors.left: prev.left
+    anchors.right: prev.right
+    !text: tr("Type")
+    text-align: center
+    margin-bottom: 5
+
+  TextEdit
+    id: healSpell
+    anchors.top: healType.top
+    anchors.left: healType.right
+    margin-left: 10
+    width: 100
+  Label
+    anchors.bottom: prev.top
+    anchors.left: prev.left
+    anchors.right: prev.right
+    !text: tr("Spell/Item")
+    text-align: center
+    margin-bottom: 5
+
+  TextEdit
+    id: minPercent
+    anchors.top: healSpell.top
+    anchors.left: healSpell.right
+    margin-left: 20
+    width: 65
+
+  Label
+    anchors.top: prev.top
+    anchors.left: prev.right
+    anchors.bottom: prev.bottom
+    margin-left: 5
+    !text: tr("to")
+    text-align: center
+
+  TextEdit
+    id: maxPercent
+    anchors.top: prev.top
+    anchors.left: prev.right
+    margin-left: 5
+    width: 65
+  Label
+    anchors.bottom: minPercent.top
+    anchors.left: minPercent.left
+    anchors.right: maxPercent.right
+    !text: tr("Range")
+    text-align: center
+    margin-bottom: 5
+
+  TextList
+    id: perfil_list
+    anchors.top: healType.bottom
+    anchors.left: healType.left
+    anchors.right: maxPercent.right
+    anchors.bottom: closeButton.top
+    margin-right: 40
+    margin-bottom: 20
+    margin-top: 20
+    padding: 1
+    phantom: true
+    auto-focus: first
+    vertical-scrollbar: perfil_scrollbar
+  VerticalScrollBar
+    id: perfil_scrollbar
+    anchors.top: perfil_list.top
+    anchors.right: perfil_list.right
+    anchors.bottom: perfil_list.bottom
+    step: 18
+    pixels-scroll: true
+  OkButton
+    id: insert_button
+    anchors.top: perfil_scrollbar.top
+    anchors.left: perfil_scrollbar.right
+    margin-left: 10
+  NotButton
+    id: insert_button
+    anchors.top: prev.bottom
+    anchors.left: prev.left
+    margin-top: 5
+  CheckBox
+    id: enable
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    !text: tr("Enable")
+    text-auto-resize: true
+    margin-bottom: 5
+
+    $checked:
+      color: green
+    $!checked:
+      color: red
