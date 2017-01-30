@@ -13,35 +13,35 @@ BotWindow
     options: 
       - Health
       - Mana
-  Label
+  BotLabel
     anchors.bottom: prev.top
     anchors.left: prev.left
     anchors.right: prev.right
     !text: tr("Type")
     text-align: center
     margin-bottom: 5
-  TextEdit
+  BotTextEdit
     id: healSpell
     anchors.top: healType.top
     anchors.left: healType.right
     margin-left: 10
     width: 100
 
-  Label
+  BotLabel
     anchors.bottom: prev.top
     anchors.left: prev.left
     anchors.right: prev.right
     !text: tr("Spell/Item")
     text-align: center
     margin-bottom: 5
-  TextEdit
+  BotTextEdit
     id: minPercent
     anchors.top: healSpell.top
     anchors.left: healSpell.right
     margin-left: 20
     width: 65
 
-  Label
+  BotLabel
     anchors.top: prev.top
     anchors.left: prev.right
     anchors.bottom: prev.bottom
@@ -49,13 +49,13 @@ BotWindow
     !text: tr("to")
     text-align: center
 
-  TextEdit
+  BotTextEdit
     id: maxPercent
     anchors.top: prev.top
     anchors.left: prev.right
     margin-left: 5
     width: 65
-  Label
+  BotLabel
     anchors.bottom: minPercent.top
     anchors.left: minPercent.left
     anchors.right: maxPercent.right
@@ -97,7 +97,7 @@ BotWindow
     anchors.bottom: perfil_list.bottom
     step: 18
     pixels-scroll: true
-  Button
+  BotButton
     id: insert_button
     !text: tr("<<")
     width: 30
@@ -106,7 +106,7 @@ BotWindow
     margin-left: 10
     !tooltip: tr("Insert")
     @onClick: modules.kingdom_bot.healing.addPerfilToList()
-  Button
+  BotButton
     id: remove_button
     !text: tr(">>")
     anchors.top: prev.bottom
@@ -115,14 +115,14 @@ BotWindow
     margin-top: 5
     !tooltip: tr("Remove")
     @onClick: modules.kingdom_bot.healing.removePerfilFromList()
-  CheckBox
+  BotCheckBox
     id: enable
     anchors.bottom: parent.bottom
     anchors.left: parent.left
     !text: tr("Enable")
     text-auto-resize: true
     margin-bottom: 5
-    @onCheckChange: if self:isChecked() then modules.kingdom_bot.healing.connectHealthListener() else modules.kingdom_bot.healing.disconnectHealthListener() end
+    @onCheckChange: if self:isChecked() then modules.kingdom_bot.healing.connectHealistener() else modules.kingdom_bot.healing.disconnectHealListener() end
     $checked:
       color: green
     $!checked:

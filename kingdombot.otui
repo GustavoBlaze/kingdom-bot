@@ -1,7 +1,23 @@
+BotCheckBox < CheckBox
+  font: my-font
+
+BotTextEdit < TextEdit
+  font: verdana-11px-monochrome
+
+ComboBox < ComboBox
+  font: my-font
+
+BotButton < Button
+  font: my-font
+
+BotLabel < Label
+  font: my-font
+
 BotWindow < Window
+  font: my-font
   @onEscape: self:hide()
   @onEnter: self:hide()
-  Button
+  BotButton
     id: closeButton
     !text: tr("Close")
     anchors.bottom: parent.bottom
@@ -13,11 +29,12 @@ OkButton < TopButton
   icon-source: images/ok_button
   icon-size: 20 20
   icon-offset: 3 2
+  font: my-font
 NotButton < TopButton
   icon-source: images/not_button
   icon-size: 20 20
   icon-offset: 3 3
-
+  font: my-font
 HealPerfil < UIWidget
   height: 14
   background-color: alpha
@@ -34,59 +51,51 @@ HealPerfil < UIWidget
   $focus:
     background-color: #ffffff22
 
-  Label
+  BotLabel
     id: type
     color: #bbbbbb
     anchors.top: parent.top
     anchors.left: parent.left
-    font: verdana-11px-monochrome
     width: 80
     background-color: alpha
     text-align: center
     text-offset: 2 0
     border-right: 1
     border-color: black
-    $on:
-      color: #ffffff
-  Label
+    @onTextChange: if self:getText() == "Mana" then self:setColor("#0000FF") elseif self:getText() == "Health" then self:setColor("#FF0000") end
+  BotLabel
     id: spell
     color: #bbbbbb
     anchors.top: parent.top
     anchors.left: prev.right
-    font: verdana-11px-monochrome
     width: 100
     background-color: alpha
     text-align: center
     text-offset: 2 0
-
     $on:
       color: #ffffff
 
-  Label
+  BotLabel
     id: min
     color: #bbbbbb
     anchors.top: parent.top
     anchors.left: prev.right
-    font: verdana-11px-monochrome
     width: 65
     background-color: alpha
     text-align: center
     text-offset: 2 0
-
     $on:
       color: #ffffff
-  Label
+  BotLabel
     id: max
     color: #bbbbbb
     anchors.top: parent.top
     anchors.left: prev.right
     anchors.right: parent.right
-    font: verdana-11px-monochrome
     background-color: alpha
     text-align: center
     margin-right: 10
     text-offset: 2 0
-
     $on:
       color: #ffffff
 
@@ -98,7 +107,7 @@ BotWindow
   @onEscape: modules.kingdom_bot.toggle()
   @onEnter: modules.kingdom_bot.toggle()
 
-  Button
+  BotButton
     id: healingButton
     !text: tr("Healing")
     width: 70

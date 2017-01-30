@@ -1,8 +1,8 @@
 healing = {}
 
 function healing.init()
-        healing.window = g_ui.displayUI("healing.otui")
-      healing.window:hide()
+    healing.window = g_ui.displayUI("healing.otui")
+    healing.window:hide()
 
     -- widgets of paramters
     healing.type = healing.window:getChildById('healType')
@@ -35,7 +35,7 @@ end
 
 function healing.addPerfilToList(h_type, h_spell, h_min, h_max)
     local params = {}
-    params[1] = h_type or healing.type:getText()
+    params[1] = h_type or healing.type:getCurrentOption().text
     params[2] = h_spell or healing.spell:getText()
     params[3] = h_min or healing.min:getText()
     params[4] = h_max or healing.max:getText()
@@ -83,7 +83,7 @@ function healing.removePerfilFromList()
         end
     end
 
-    healing.type:setText(item:getChildById('type'):getText())
+    healing.type:setOption(item:getChildById('type'):getText())
     healing.spell:setText(item:getChildById('spell'):getText())
     healing.min:setText(item:getChildById('min'):getText())
     healing.max:setText(item:getChildById('max'):getText())
@@ -92,7 +92,7 @@ function healing.removePerfilFromList()
 end
 function healing.terminate()
     healing.window:destroy()
-    healing.disconnectHealthListener()
+    healing.disconnectHealListener()
 end
 
 function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreType, tries, spell, healthMin, healthMax)
@@ -109,7 +109,10 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreTyp
             end
             delay = math.min(500, g_game.getPing()*1.5)
             local nextHeal = scheduleEvent(function()
-                player = g_game.getLocalPlayer()
+                local player = g_game.getLocalPlayer()
+                if not player then
+                    return
+                end
                 local life = player:getHealthPercent()
                 health, maxHealth = player:getHealth(), player:getMaxHealth()
                 if life >= healthMin and life <= healthMax and tries > 0 then
@@ -130,7 +133,10 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreTyp
 
             delay = math.min(500, g_game.getPing()*1.5)
             local nextHeal = scheduleEvent(function()
-                player = g_game.getLocalPlayer()
+                local player = g_game.getLocalPlayer()
+                if not player then
+                    return
+                end
                 local life = player:getHealthPercent()
                 health, maxHealth = player:getHealth(), player:getMaxHealth()
                 if life >= healthMin and life <= healthMax and tries > 0 then
@@ -153,7 +159,10 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreTyp
                 end
                 delay = math.min(500, g_game.getPing()*1.5)
                 local nextHeal = scheduleEvent(function()
-                    player = g_game.getLocalPlayer()
+                    local player = g_game.getLocalPlayer()
+                    if not player then
+                        return
+                    end
                     local life = player:getHealthPercent()
                     health, maxHealth = player:getHealth(), player:getMaxHealth()
                     if life >= tonumber(params[3])and life <= healthMax and tries > 0 then
@@ -175,6 +184,9 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreTyp
                 delay = math.min(500, g_game.getPing()*1.5)
                 local nextHeal = scheduleEvent(function()
                     player = g_game.getLocalPlayer()
+                    if not player then
+                        return
+                    end
                     local life = player:getHealthPercent()
                     health, maxHealth = player:getHealth(), player:getMaxHealth()
                     if life >= healthMin and life <= healthMax and tries > 0 then
@@ -190,21 +202,86 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreTyp
     end
 end
 
-function healing.connectHealthListener()
+function healing.onManaChange(player, mana, maxMana, oldMana, tries, itemId, manaMin, manaMax)
+    local tires = tries or 10
+
+    if itemId and manaMin and manaMax then
+        local delay = 0
+        local manaPercent = player:getManaPercent()
+
+        if manaPercent >= manaMin and manaPercent <= manaMax then
+            g_game.useInventoryItemWith(itemId, player)
+        end
+
+        delay = math.min(250, g_game.getPing()*1.5)
+        
+        local nextHeal = scheduleEvent(function()
+                local player = g_game.getLocalPlayer()
+                if not player then
+                    return
+                end
+
+                mana, maxMana = player:getMana(), player:getMaxMana()
+                local manaPercent = player:getManaPercent()
+
+                if manaPercent >= manaMin and manaPercent <= manaMax and tries > 0 then
+                    tries = tries - 1
+                    healing.onManaChange(player, mana, maxMana, mana, tries, itemId, manaMin, manaMax)
+                else
+                    removeEvent(nextHeal)
+                end
+        end, delay)
+    else
+        for k, params in pairs(healing.list['Mana']) do
+            itemId = tonumber(params[2])
+            local delay = 0
+            local manaPercent = player:getManaPercent()
+            manaMin, manaMax = tonumber(params[3]), tonumber(params[4])
+
+            if manaPercent >= manaMin and manaPercent <= manaMax then
+                g_game.useInventoryItemWith(itemId, player)
+            end
+
+            delay = math.min(250, g_game.getPing()*1.5)
+
+            local nextHeal = scheduleEvent(function()
+                local player = g_game.getLocalPlayer()
+                if not player then
+                    return
+                end
+
+                mana, maxMana = player:getMana(), player:getMaxMana()
+                local manaPercent = player:getManaPercent()
+
+                if manaPercent >= manaMin and manaPercent <= manaMax then
+                    tries = tries - 1
+                    healing.onManaChange(player, mana, maxMana, mana, tries, itemId, manaMin, manaMax)
+                else
+                    removeEvent(nextHeal)
+                end
+            end, delay)
+        end
+    end
+end
+
+function healing.connectHealistener()
     if g_game.isOnline() then
         local player = g_game.getLocalPlayer()
         addEvent(healing.onHealthChange(player, player:getHealth(), player:getMaxHealth(), player:getHealth()))
+        addEvent(healing.onHealthChange(player, player:getMana(), player:getMaxMana(), player:getMana()))
     end
 
     connect(LocalPlayer, {onHealthChange =  healing.onHealthChange})
+    connect(LocalPlayer, {onManaChange = healing.onManaChange})
 end
 
-function healing.disconnectHealthListener()
+function healing.disconnectHealListener()
     disconnect(LocalPlayer, {onHealthChange =  healing.onHealthChange})
+    disconnect(LocalPlayer, {onManaChange =  healing.onManaChange})
 end
 
 function healing.choosingItem(self, mousePosition, mouseButton)
-    if g_keyboard.getModifiers() == 1 then
+    if mouseButton == MouseRightButton then
         local menu = g_ui.createWidget('PopupMenu')
         menu:addOption(tr('Choose Item'), function() healing.startChooseItem(healing.setItemCallback) end)
         menu:display(mousePosition)
