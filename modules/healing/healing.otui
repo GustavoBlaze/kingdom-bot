@@ -20,13 +20,13 @@ BotWindow
     !text: tr("Type")
     text-align: center
     margin-bottom: 5
-
   TextEdit
     id: healSpell
     anchors.top: healType.top
     anchors.left: healType.right
     margin-left: 10
     width: 100
+
   Label
     anchors.bottom: prev.top
     anchors.left: prev.left
@@ -34,7 +34,6 @@ BotWindow
     !text: tr("Spell/Item")
     text-align: center
     margin-bottom: 5
-
   TextEdit
     id: minPercent
     anchors.top: healSpell.top
@@ -123,7 +122,7 @@ BotWindow
     !text: tr("Enable")
     text-auto-resize: true
     margin-bottom: 5
-
+    @onCheckChange: if self:isChecked() then modules.kingdom_bot.healing.connectHealthListener() else modules.kingdom_bot.healing.disconnectHealthListener() end
     $checked:
       color: green
     $!checked:

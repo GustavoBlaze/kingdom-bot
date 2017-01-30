@@ -84,6 +84,7 @@ HealPerfil < UIWidget
     font: verdana-11px-monochrome
     background-color: alpha
     text-align: center
+    margin-right: 10
     text-offset: 2 0
 
     $on:
