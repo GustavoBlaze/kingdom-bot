@@ -60,9 +60,7 @@ HealPerfil < UIWidget
     background-color: alpha
     text-align: center
     text-offset: 2 0
-    border-right: 1
-    border-color: black
-    @onTextChange: if self:getText() == "Mana" then self:setColor("#0000FF") elseif self:getText() == "Health" then self:setColor("#FF0000") end
+    @onTextChange: if self:getText() == "Mana" then self:setColor("#0000FF") elseif self:getText() == "Health" then self:setColor("#FF0000") elseif self:getText() == "Friend" then self:setColor("#FF8C00") end
   BotLabel
     id: spell
     color: #bbbbbb
@@ -98,6 +96,31 @@ HealPerfil < UIWidget
     text-offset: 2 0
     $on:
       color: #ffffff
+FriendLabel < UIWidget
+  height: 14
+  background-color: alpha
+  &updateOnStates: |
+    function(self)
+      local children = self:getChildren()
+      for i=1,#children do
+        children[i]:setOn(self:isFocused())
+      end
+    end
+  @onFocusChange: self:updateOnStates()
+  @onSetup: self:updateOnStates()
+
+  $focus:
+    background-color: #ffffff22
+
+  BotLabel
+    id: name
+    color: #FF8C00
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    background-color: alpha
+    text-align: left
+    text-offset: 2 0
 
 BotWindow
   !text: tr("Kingdom Bot")

@@ -1,6 +1,6 @@
 BotWindow
   id: healingWindow
-  size: 400 260
+  size: 400 540
   !text: tr("Healing")
 
   ComboBox
@@ -13,6 +13,7 @@ BotWindow
     options: 
       - Health
       - Mana
+      - Friend
   BotLabel
     anchors.bottom: prev.top
     anchors.left: prev.left
@@ -67,13 +68,13 @@ BotWindow
     id: perfil_list
     anchors.top: healType.bottom
     anchors.left: healType.left
-    anchors.bottom: closeButton.top
+    height: 120
     width: 320
     margin-bottom: 20
     margin-top: 20
     padding: 1
     phantom: true
-    auto-focus: first
+    auto-focus: last
     vertical-scrollbar: perfil_scrollbar
   VerticalSeparator
     anchors.top: prev.top
@@ -115,14 +116,97 @@ BotWindow
     margin-top: 5
     !tooltip: tr("Remove")
     @onClick: modules.kingdom_bot.healing.removePerfilFromList()
+  HorizontalSeparator
+    anchors.top: perfil_list.bottom
+    anchors.left: perfil_list.left
+    anchors.right: perfil_list.right
+    margin-top: 15
+  TextList
+    id: friendList
+    anchors.top: prev.top
+    anchors.left: prev.left
+    height: 120
+    width: 320
+    margin-bottom: 20
+    margin-top: 30
+    padding: 1
+    phantom: true
+    auto-focus: last
+    vertical-scrollbar: friendScrollbar
+  BotLabel
+    anchors.bottom: prev.top
+    anchors.left: prev.left
+    anchors.right: prev.right
+    !text: tr("Friend List")
+    text-align: center
+    margin-bottom: 3
+  VerticalScrollBar
+    id: friendScrollbar
+    anchors.top: friendList.top
+    anchors.right: friendList.right
+    anchors.bottom: friendList.bottom
+    step: 18
+    pixels-scroll: true
+  BotTextEdit
+    id: friendText
+    anchors.top: friendList.bottom
+    anchors.left: friendList.left
+    margin-top: 10
+    width: 130
+  BotButton
+    anchors.top: prev.top
+    anchors.left: prev.right
+    margin-left: 10
+    !text: tr("Add")
+    width: 80
+    @onClick: healing.addFriend()
+  BotButton
+    anchors.top: prev.top
+    anchors.left: prev.right
+    anchors.right: friendList.right
+    !text: tr("Remove")
+    margin-left: 10
+    @onClick: healing.removeFriend()
+  HorizontalScrollBar
+    id: healFriendBar
+    anchors.left: friendList.left
+    anchors.top: prev.bottom
+    margin-top: 40
+    mouse-scroll: false
+    show-value: true
+    symbol: %
+    minimum: 1
+    maximum: 100
+    width: 180
+  BotLabel
+    id: alertLabel
+    anchors.left: prev.left
+    anchors.bottom: prev.top
+    anchors.right: prev.right
+    text-align: center
+    margin-bottom: 5
+    !text: tr("Do not heal friend\nwhen my health is lower than: ")
+    height: 30
   BotCheckBox
-    id: enable
+    id: enableHeal
     anchors.bottom: parent.bottom
     anchors.left: parent.left
-    !text: tr("Enable")
+    !text: tr("Enable Heal")
     text-auto-resize: true
     margin-bottom: 5
     @onCheckChange: if self:isChecked() then modules.kingdom_bot.healing.connectHealistener() else modules.kingdom_bot.healing.disconnectHealListener() end
+    $checked:
+      color: green
+    $!checked:
+      color: red
+  BotCheckBox
+    id: enableFriend
+    anchors.bottom: prev.top
+    anchors.left: prev.left
+    !text: tr("Enable Friend List")
+    margin-bottom: 5
+    text-auto-resize: true
+    @onCheckChange: if self:isChecked() then modules.kingdom_bot.healing.startHealFriend() else modules.kingdom_bot.healing.stopHealFriend() end
     $checked:
       color: green
     $!checked:

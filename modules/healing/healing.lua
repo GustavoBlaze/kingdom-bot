@@ -1,5 +1,7 @@
 healing = {}
 
+local friend_event = nil
+
 function healing.init()
     healing.window = g_ui.displayUI("healing.otui")
     healing.window:hide()
@@ -9,15 +11,18 @@ function healing.init()
     healing.spell = healing.window:getChildById('healSpell')
     healing.min = healing.window:getChildById('minPercent')
     healing.max = healing.window:getChildById('maxPercent')
-    
+    healing.friend = healing.window:getChildById('friendText')
     healing.spell.onMouseRelease = healing.choosingItem
-    -- perfil list
-    healing.listWidget = healing.window:getChildById('perfil_list')
+    --lists
+    healing.perfilsWidget = healing.window:getChildById('perfil_list')
+    healing.friendList = healing.window:getChildById('friendList')
 
-    healing.list = {}
-    healing.list['Mana'] = {}
-    healing.list['Health'] = {}
 
+
+    healing.types = {}
+    healing.types['Mana'] = {}
+    healing.types['Health'] = {}
+    healing.types['Friend'] = {}
 end
 
 function healing.toggle()
@@ -33,6 +38,30 @@ function healing.toggle()
     end
 end
 
+function healing.addFriend(name)
+    local name = name or healing.friend:getText()
+ 
+    if name == '' then
+       return print("You need set friend name")
+    end
+    
+    local id = #healing.friendList:getChildren() + 1
+    local item = g_ui.createWidget('FriendLabel', healing.friendList)
+    item:getChildById('name'):setText(name)
+    item:setId(id)
+
+    healing.friend:setText('')
+end
+
+function healing.removeFriend()
+    local item = healing.friendList:getFocusedChild()
+    if not item then
+        return
+    end
+
+    item:destroy()
+end
+
 function healing.addPerfilToList(h_type, h_spell, h_min, h_max)
     local params = {}
     params[1] = h_type or healing.type:getCurrentOption().text
@@ -42,13 +71,15 @@ function healing.addPerfilToList(h_type, h_spell, h_min, h_max)
 
     for key, value in pairs(params) do
         if value == '' then
-            return print("Coloque todos os parametros")
+            return print("You need set all paramters")
         end
     end
 
-    local perfils = healing.listWidget:getChildren()
+    params[2] = params[2]:lower()
+
+    local perfils = healing.perfilsWidget:getChildren()
     params[5] = tostring(#perfils+1)
-    local item = g_ui.createWidget('HealPerfil', healing.listWidget)
+    local item = g_ui.createWidget('HealPerfil', healing.perfilsWidget)
 
     item:getChildById('type'):setText(params[1])
     item:getChildById('spell'):setText(params[2])
@@ -56,7 +87,7 @@ function healing.addPerfilToList(h_type, h_spell, h_min, h_max)
     item:getChildById('max'):setText(params[4])
     item:setId(params[5])
 
-    table.insert(healing.list[params[1]], params)
+    table.insert(healing.types[params[1]], params)
 
     healing.spell:setText('')
     healing.min:setText('')
@@ -64,7 +95,7 @@ function healing.addPerfilToList(h_type, h_spell, h_min, h_max)
 end
 
 function healing.removePerfilFromList()
-    local item = healing.listWidget:getFocusedChild()
+    local item = healing.perfilsWidget:getFocusedChild()
     if not item then
         return
     end
@@ -77,9 +108,9 @@ function healing.removePerfilFromList()
     params[4] = item:getChildById('max'):getText()
     params[5] = item:getId()
 
-    for k,v in pairs(healing.list[params[1]]) do
+    for k,v in pairs(healing.types[params[1]]) do
         if v[5] == params[5] then
-            healing.list[params[1]][k] = nil
+            healing.types[params[1]][k] = nil
         end
     end
 
@@ -93,6 +124,7 @@ end
 function healing.terminate()
     healing.window:destroy()
     healing.disconnectHealListener()
+    healing.stopHealFriend()
 end
 
 function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreType, tries, spell, healthMin, healthMax)
@@ -128,7 +160,14 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreTyp
             local life = player:getHealthPercent()
 
             if life >= healthMin and life <= healthMax then
-                g_game.talk(spell)
+                local say, match
+                match = spell:match("exura sio")
+                if match then
+                   say = match.." \""..player:getName()
+                else
+                   say = spell
+                end
+                g_game.talk(say)
             end
 
             delay = math.min(500, g_game.getPing()*1.5)
@@ -148,14 +187,21 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreTyp
             end, delay)
         end
     else
-        for key, params in pairs(healing.list['Health']) do
+        for key, params in pairs(healing.types['Health']) do
             local spell = tonumber(params[2]) or params[2]
             if type(spell) == 'string' then
                 local delay = 0
                 local life = player:getHealthPercent()
                 healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
                 if life >= healthMin and life <= healthMax then
-                    g_game.talk(spell)
+                    local say, match
+                    match = spell:match("exura sio")
+                    if match then
+                       say = match.." \""..player:getName()
+                    else
+                       say = spell
+                    end
+                    g_game.talk(say)
                 end
                 delay = math.min(500, g_game.getPing()*1.5)
                 local nextHeal = scheduleEvent(function()
@@ -232,7 +278,7 @@ function healing.onManaChange(player, mana, maxMana, oldMana, tries, itemId, man
                 end
         end, delay)
     else
-        for k, params in pairs(healing.list['Mana']) do
+        for k, params in pairs(healing.types['Mana']) do
             itemId = tonumber(params[2])
             local delay = 0
             local manaPercent = player:getManaPercent()
@@ -263,7 +309,71 @@ function healing.onManaChange(player, mana, maxMana, oldMana, tries, itemId, man
         end
     end
 end
+function healing.startHealFriend()
+    if friend_event == nil then
+        friend_event = cycleEvent(function()
+            if not g_game.isOnline() then
+                return
+            end
+            local player = g_game.getLocalPlayer()
+            local list = healing.friendList:getChildren()
+            local healBar = tonumber(healing.window:getChildById('healFriendBar'):getValue())
+            
+            if player:getHealthPercent() < healBar then
+                return
+            end
 
+            if #healing.types['Friend'] == 0 or #list == 0 then
+                 return
+            end
+            local friends = {}
+
+            for k,v in pairs(list) do
+                table.insert(friends, v:getChildById('name'):getText())
+            end
+            print(table.tostring(friends))
+
+            local player = g_game.getLocalPlayer()
+            local creatures = g_map.getSpectators(player:getPosition(), false)
+
+            for a, creature in pairs(creatures) do
+                for b, name in pairs(friends) do
+                    if creature:getName():lower() == name:lower() then
+
+                        for c, params in pairs(healing.types['Friend']) do
+                            local spell = tonumber(params[2]) or params[2]
+                            local min,max = tonumber(params[3]), tonumber(params[4])
+                            local life = creature:getHealthPercent()
+
+                            if type(spell) == 'string' then
+                                if life >= min and life <= max then
+                                    local say, match
+                                    match = spell:match("exura sio")
+                                    if match then
+                                       say = match.." \""..name
+                                    else
+                                       say = spell
+                                    end
+                                    return g_game.talk(say)
+                                end
+                            elseif type(spell) == 'number' then
+                                if life >= min and life <= max then
+                                    local itemId = spell
+                                    g_game.useInventoryItemWith(itemId, creature)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end, 600)
+    end
+end
+
+function healing.stopHealFriend()
+    removeEvent(friend_event)
+    friend_event = nil
+end
 function healing.connectHealistener()
     if g_game.isOnline() then
         local player = g_game.getLocalPlayer()
