@@ -10,6 +10,7 @@ implementadas nesse bot, coisas como:
 - Targetting
 - Lotting
 - Cavebotting
+
 Essas sao as coisas principais pra a serem implementadas, mas não sao as
 unica. Quero colocar muito mais coisas e realmente fazer um bot completo.
 
