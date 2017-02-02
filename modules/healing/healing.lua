@@ -127,38 +127,15 @@ function healing.terminate()
     healing.stopHealFriend()
 end
 
-function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreType, tries, spell, healthMin, healthMax)
+function healing.onHealthChange(player, health, maxHealth, oldHealth, tries)
     local tries = tries or 10
-    if restoreType and spells and healthMin and healthMax then
-        if restoreType == 'item' then
-            local delay = 0
-            player = g_game.getLocalPlayer()
-            local life = player:getHealthPercent()
 
-            if life >= healthMin and life <= healthMax then
-                local itemId = tonumber(spell)
-                g_game.useInventoryItemWith(itemId, g_game.getLocalPlayer())
-            end
-            delay = math.min(500, g_game.getPing()*1.5)
-            local nextHeal = scheduleEvent(function()
-                local player = g_game.getLocalPlayer()
-                if not player then
-                    return
-                end
-                local life = player:getHealthPercent()
-                health, maxHealth = player:getHealth(), player:getMaxHealth()
-                if life >= healthMin and life <= healthMax and tries > 0 then
-                    tries = tries - 1
-                    healing.onHealthChange(player, health, maxHealth, health, "item", tries, healthMin, healthMax)
-                else
-                    removeEvent(nextHeal)
-                end
-            end, delay)
-        elseif restoreType == "spell" then
+    for key, params in pairs(healing.types['Health']) do
+        local spell = tonumber(params[2]) or params[2]
+        if type(spell) == 'string' then
             local delay = 0
-            player = g_game.getLocalPlayer()
             local life = player:getHealthPercent()
-
+            local healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
             if life >= healthMin and life <= healthMax then
                 local say, match
                 match = spell:match("exura sio")
@@ -169,8 +146,7 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreTyp
                 end
                 g_game.talk(say)
             end
-
-            delay = math.min(500, g_game.getPing()*1.5)
+                delay = 500
             local nextHeal = scheduleEvent(function()
                 local player = g_game.getLocalPlayer()
                 if not player then
@@ -178,135 +154,72 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, restoreTyp
                 end
                 local life = player:getHealthPercent()
                 health, maxHealth = player:getHealth(), player:getMaxHealth()
+                if life >= tonumber(params[3])and life <= healthMax and tries > 0 then
+                    tries = tries - 1
+                    healing.onHealthChange(player, health, maxHealth, health, tries)
+                else
+                    removeEvent(nextHeal)
+                end
+            end, delay)
+
+        elseif type(spell) == 'number' then
+            local delay = 0
+            local life = player:getHealthPercent()
+            local healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
+            if life >= healthMin and life <= healthMax then
+                local itemId = spell
+                g_game.useInventoryItemWith(itemId, g_game.getLocalPlayer())
+            end
+            delay = 500
+            local nextHeal = scheduleEvent(function()
+                player = g_game.getLocalPlayer()
+                if not player then
+                    return
+                end
+                local life = player:getHealthPercent()
+                health, maxHealth = player:getHealth(), player:getMaxHealth()
                 if life >= healthMin and life <= healthMax and tries > 0 then
                     tries = tries - 1
-                    healing.onHealthChange(player, health, maxHealth, health, "spell", tries, spell, healthMin, healthMax)
+                    healing.onHealthChange(player, health, maxHealth, health, tries)
                 else
                     removeEvent(nextHeal)
                 end
             end, delay)
         end
-    else
-        for key, params in pairs(healing.types['Health']) do
-            local spell = tonumber(params[2]) or params[2]
-            if type(spell) == 'string' then
-                local delay = 0
-                local life = player:getHealthPercent()
-                healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
-                if life >= healthMin and life <= healthMax then
-                    local say, match
-                    match = spell:match("exura sio")
-                    if match then
-                       say = match.." \""..player:getName()
-                    else
-                       say = spell
-                    end
-                    g_game.talk(say)
-                end
-                delay = math.min(500, g_game.getPing()*1.5)
-                local nextHeal = scheduleEvent(function()
-                    local player = g_game.getLocalPlayer()
-                    if not player then
-                        return
-                    end
-                    local life = player:getHealthPercent()
-                    health, maxHealth = player:getHealth(), player:getMaxHealth()
-                    if life >= tonumber(params[3])and life <= healthMax and tries > 0 then
-                        tries = tries - 1
-                        healing.onHealthChange(player, health, maxHealth, health, "spell", tries, spell, healthMin, healthMax)
-                    else
-                        removeEvent(nextHeal)
-                    end
-                end, delay)
-
-            elseif type(spell) == 'number' then
-                local delay = 0
-                local life = player:getHealthPercent()
-                healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
-                if life >= healthMin and life <= healthMax then
-                    local itemId = spell
-                    g_game.useInventoryItemWith(itemId, g_game.getLocalPlayer())
-                end
-                delay = math.min(500, g_game.getPing()*1.5)
-                local nextHeal = scheduleEvent(function()
-                    player = g_game.getLocalPlayer()
-                    if not player then
-                        return
-                    end
-                    local life = player:getHealthPercent()
-                    health, maxHealth = player:getHealth(), player:getMaxHealth()
-                    if life >= healthMin and life <= healthMax and tries > 0 then
-                        tries = tries - 1
-                        healing.onHealthChange(player, health, maxHealth, health, "item", tries, spell, healthMin, healthMax)
-                    else
-                        removeEvent(nextHeal)
-                    end
-                end, delay)
-
-            end
-        end
     end
 end
 
-function healing.onManaChange(player, mana, maxMana, oldMana, tries, itemId, manaMin, manaMax)
-    local tires = tries or 10
+function healing.onManaChange(player, mana, maxMana, oldMana, tries)
+    local tries = tries or 10
 
-    if itemId and manaMin and manaMax then
+    for k, params in pairs(healing.types['Mana']) do
+        itemId = tonumber(params[2])
         local delay = 0
         local manaPercent = player:getManaPercent()
+        manaMin, manaMax = tonumber(params[3]), tonumber(params[4])
 
         if manaPercent >= manaMin and manaPercent <= manaMax then
             g_game.useInventoryItemWith(itemId, player)
         end
 
-        delay = math.min(250, g_game.getPing()*1.5)
-        
+        delay = 1000
+
         local nextHeal = scheduleEvent(function()
-                local player = g_game.getLocalPlayer()
-                if not player then
-                    return
-                end
-
-                mana, maxMana = player:getMana(), player:getMaxMana()
-                local manaPercent = player:getManaPercent()
-
-                if manaPercent >= manaMin and manaPercent <= manaMax and tries > 0 then
-                    tries = tries - 1
-                    healing.onManaChange(player, mana, maxMana, mana, tries, itemId, manaMin, manaMax)
-                else
-                    removeEvent(nextHeal)
-                end
-        end, delay)
-    else
-        for k, params in pairs(healing.types['Mana']) do
-            itemId = tonumber(params[2])
-            local delay = 0
-            local manaPercent = player:getManaPercent()
-            manaMin, manaMax = tonumber(params[3]), tonumber(params[4])
-
-            if manaPercent >= manaMin and manaPercent <= manaMax then
-                g_game.useInventoryItemWith(itemId, player)
+            local player = g_game.getLocalPlayer()
+            if not player then
+                return
             end
 
-            delay = math.min(250, g_game.getPing()*1.5)
+            mana, maxMana = player:getMana(), player:getMaxMana()
+            local manaPercent = player:getManaPercent()
 
-            local nextHeal = scheduleEvent(function()
-                local player = g_game.getLocalPlayer()
-                if not player then
-                    return
-                end
-
-                mana, maxMana = player:getMana(), player:getMaxMana()
-                local manaPercent = player:getManaPercent()
-
-                if manaPercent >= manaMin and manaPercent <= manaMax then
-                    tries = tries - 1
-                    healing.onManaChange(player, mana, maxMana, mana, tries, itemId, manaMin, manaMax)
-                else
-                    removeEvent(nextHeal)
-                end
-            end, delay)
-        end
+            if manaPercent >= manaMin and manaPercent <= manaMax then
+                tries = tries - 1
+                healing.onManaChange(player, mana, maxMana, mana, tries)
+            else
+                removeEvent(nextHeal)
+            end
+        end, delay)
     end
 end
 function healing.startHealFriend()
@@ -331,7 +244,6 @@ function healing.startHealFriend()
             for k,v in pairs(list) do
                 table.insert(friends, v:getChildById('name'):getText())
             end
-            print(table.tostring(friends))
 
             local player = g_game.getLocalPlayer()
             local creatures = g_map.getSpectators(player:getPosition(), false)
@@ -374,13 +286,17 @@ function healing.stopHealFriend()
     removeEvent(friend_event)
     friend_event = nil
 end
-function healing.connectHealistener()
-    if g_game.isOnline() then
-        local player = g_game.getLocalPlayer()
-        addEvent(healing.onHealthChange(player, player:getHealth(), player:getMaxHealth(), player:getHealth()))
-        addEvent(healing.onHealthChange(player, player:getMana(), player:getMaxMana(), player:getMana()))
-    end
 
+function healing.executeHeal()
+	if healing.window:getChildById('enableHeal'):isChecked() then
+	    if g_game.isOnline() then
+	        local player = g_game.getLocalPlayer()
+	        addEvent(healing.onHealthChange(player, player:getHealth(), player:getMaxHealth(), player:getHealth()))
+	        addEvent(healing.onManaChange(player, player:getMana(), player:getMaxMana(), player:getMana()))
+	    end
+	end
+end
+function healing.connectHealistener()
     connect(LocalPlayer, {onHealthChange =  healing.onHealthChange})
     connect(LocalPlayer, {onManaChange = healing.onManaChange})
 end

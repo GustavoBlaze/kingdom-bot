@@ -106,7 +106,7 @@ BotWindow
     anchors.left: perfil_scrollbar.right
     margin-left: 10
     !tooltip: tr("Insert")
-    @onClick: modules.kingdom_bot.healing.addPerfilToList()
+    @onClick: modules.kingdom_bot.healing.addPerfilToList() modules.kingdom_bot.healing.executeHeal()
   BotButton
     id: remove_button
     !text: tr(">>")
