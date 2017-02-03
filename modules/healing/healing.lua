@@ -1,6 +1,7 @@
 healing = {}
 
 local friend_event = nil
+local nextHeal = {}
 
 function healing.init()
     healing.window = g_ui.displayUI("healing.otui")
@@ -127,8 +128,12 @@ function healing.terminate()
     healing.stopHealFriend()
 end
 
-function healing.onHealthChange(player, health, maxHealth, oldHealth, tries)
-    local tries = tries or 10
+function healing.onHealthChange(player, health, maxHealth, oldHealth, oldMaxHealth, try)
+	if not healing.window:getChildById('enableHeal'):isChecked() then
+        return
+	end
+
+    local try = try or 10
 
     for key, params in pairs(healing.types['Health']) do
         local spell = tonumber(params[2]) or params[2]
@@ -136,7 +141,7 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, tries)
             local delay = 0
             local life = player:getHealthPercent()
             local healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
-            if life >= healthMin and life <= healthMax then
+            if (life >= healthMin and life <= healthMax) then
                 local say, match
                 match = spell:match("exura sio")
                 if match then
@@ -147,50 +152,59 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, tries)
                 g_game.talk(say)
             end
                 delay = 500
-            local nextHeal = scheduleEvent(function()
+            removeEvent(nextHeal['health'])
+            nextHeal['health'] = scheduleEvent(function()
                 local player = g_game.getLocalPlayer()
                 if not player then
                     return
                 end
                 local life = player:getHealthPercent()
                 health, maxHealth = player:getHealth(), player:getMaxHealth()
-                if life >= tonumber(params[3])and life <= healthMax and tries > 0 then
-                    tries = tries - 1
-                    healing.onHealthChange(player, health, maxHealth, health, tries)
+                if life >= healthMin and life <= healthMax and try > 0 then
+                    try = try - 1
+                    healing.onHealthChange(player, health, maxHealth, health, maxHealth, try)
                 else
-                    removeEvent(nextHeal)
+                    removeEvent(nextHeal['health'])
+                    nextHeal['health'] = nil
                 end
             end, delay)
-
+            break
         elseif type(spell) == 'number' then
             local delay = 0
             local life = player:getHealthPercent()
             local healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
-            if life >= healthMin and life <= healthMax then
+            if (life >= healthMin and life <= healthMax) then
                 local itemId = spell
                 g_game.useInventoryItemWith(itemId, g_game.getLocalPlayer())
             end
             delay = 500
-            local nextHeal = scheduleEvent(function()
+            removeEvent(nextHeal['health'])
+            nextHeal['health'] = scheduleEvent(function()
                 player = g_game.getLocalPlayer()
                 if not player then
                     return
                 end
                 local life = player:getHealthPercent()
                 health, maxHealth = player:getHealth(), player:getMaxHealth()
-                if life >= healthMin and life <= healthMax and tries > 0 then
-                    tries = tries - 1
-                    healing.onHealthChange(player, health, maxHealth, health, tries)
+                if (life >= healthMin and life <= healthMax and try > 0) then
+                    try = try - 1
+                    healing.onHealthChange(player, health, maxHealth, health, maxHealth, try)
                 else
-                    removeEvent(nextHeal)
+                    removeEvent(nextHeal['health'])
+                    nextHeal['health'] = nil              
                 end
             end, delay)
+            break
         end
     end
 end
 
-function healing.onManaChange(player, mana, maxMana, oldMana, tries)
-    local tries = tries or 10
+function healing.onManaChange(player, mana, maxMana, oldMana, oldMaxMana, try)
+    if not healing.window:getChildById('enableHeal'):isChecked() then
+        return
+	end
+    
+    local try = try or 10
 
     for k, params in pairs(healing.types['Mana']) do
         itemId = tonumber(params[2])
@@ -204,7 +218,8 @@ function healing.onManaChange(player, mana, maxMana, oldMana, tries)
 
         delay = 1000
 
-        local nextHeal = scheduleEvent(function()
+        removeEvent(nextHeal['mana'])
+        nextHeal['mana'] = scheduleEvent(function()
             local player = g_game.getLocalPlayer()
             if not player then
                 return
@@ -213,13 +228,16 @@ function healing.onManaChange(player, mana, maxMana, oldMana, tries)
             mana, maxMana = player:getMana(), player:getMaxMana()
             local manaPercent = player:getManaPercent()
 
-            if manaPercent >= manaMin and manaPercent <= manaMax then
-                tries = tries - 1
-                healing.onManaChange(player, mana, maxMana, mana, tries)
+            if manaPercent >= manaMin and manaPercent <= manaMax and try > 0 then
+                try = try - 1
+                healing.onManaChange(player, mana, maxMana, mana, maxMana, try)
             else
-                removeEvent(nextHeal)
+                removeEvent(nextHeal['mana'])
+                nextHeal['mana'] = nil
+                
             end
         end, delay)
+        break
     end
 end
 function healing.startHealFriend()
@@ -297,6 +315,7 @@ function healing.executeHeal()
 	end
 end
 function healing.connectHealistener()
+	healing.executeHeal()
     connect(LocalPlayer, {onHealthChange =  healing.onHealthChange})
     connect(LocalPlayer, {onManaChange = healing.onManaChange})
 end
