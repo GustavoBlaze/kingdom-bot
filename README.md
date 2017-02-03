@@ -6,7 +6,7 @@ inspiração para este projeto.
 
 Ainda esta em fase de construção, mas já tenho alguns planos de funçãos a serem
 implementadas nesse bot, coisas como:
-- Auto Heal com friend list
+- Auto Heal com friend list (Já est funcionando)
 - Targetting
 - Lotting
 - Cavebotting
