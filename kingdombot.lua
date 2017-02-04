@@ -1,4 +1,5 @@
 dofile('modules/healing/healing.lua')
+dofile('modules/targeting/targeting.lua')
 
 g_button = nil
 g_window = nil
@@ -12,10 +13,12 @@ function init()
     g_window:hide()
     
     healing.init()
-
+    targeting.init()
+    
     optionsButton['healing'] = g_window:getChildById('healingButton')
+    optionsButton['targeting'] = g_window:getChildById('targetingButton')
     optionsButton['healing'].onClick = healing.toggle
-
+    optionsButton['targeting'].onClick = targeting.toggle
 end
 
 function toggle()

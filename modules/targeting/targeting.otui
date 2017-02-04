@@ -1,0 +1,212 @@
+BotWindow
+  !text: tr("Targeting")
+  id: targetingWindow
+  size: 420 400
+
+  TextList
+    id: monsterList
+    anchors.top: parent.top
+    anchors.left: parent.left
+    height: 174
+    width: 150
+    auto-focus: last
+    vertical-scrollbar: monsterScrollbar
+    phantom: true
+    padding: 1
+  VerticalScrollBar
+    id: monsterScrollbar
+    anchors.top: monsterList.top
+    anchors.right: monsterList.right
+    anchors.bottom: monsterList.bottom
+    step: 18
+    pixels-scroll: true
+  BotButton
+    anchors.top: prev.top
+    anchors.left: prev.right
+    margin-left: 15
+    anchors.right: parent.right
+    !text: tr("New Settings")
+    height: 20
+  BotLabel
+    anchors.top: prev.bottom
+    anchors.left: prev.left
+    margin-top: 10
+    !text: tr("Name")
+  BotTextEdit
+    id: mosterName
+    anchors.top: prev.bottom
+    anchors.left: prev.left
+    width: 120
+    margin-top: 2
+  BotTextEdit
+    id: minHPRange
+    anchors.top: prev.top
+    anchors.left: prev.right
+    margin-left: 10
+    width: 30
+    text: 0
+  BotLabel
+    anchors.bottom: prev.bottom
+    margin-bottom: 3
+    anchors.left: prev.right
+    margin-left: 5
+    !text: tr("to")
+  BotTextEdit
+    id: maxHPRange
+    anchors.top: minHPRange.top
+    anchors.left: prev.right
+    margin-left: 5
+    width: 30
+    text: 100
+  BotLabel
+    anchors.bottom: maxHPRange.top
+    anchors.left: minHPRange.left
+    anchors.right: maxHPRange.right
+    margin-bottom: 2
+    !text: tr("HP Range")
+    text-align: center
+  BotLabel
+    anchors.top: mosterName.bottom
+    anchors.left: mosterName.left
+    margin-top: 10
+    !text: tr("Movement")
+  ComboBox
+    id: movement
+    anchors.top: prev.bottom
+    anchors.left: mosterName.left
+    anchors.right: mosterName.right
+    text-offset: 15 0
+    margin-top: 2
+    options: 
+      - No Movement
+      - Diagonal
+  ComboBox
+    id: danger
+    anchors.top: movement.top
+    anchors.left: minHPRange.left
+    anchors.right: maxHPRange.right
+    text-offset: 35 0
+    options: 
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+  BotLabel
+    anchors.bottom: prev.top
+    anchors.left: prev.left
+    anchors.right: prev.right
+    !text: tr("Danger Level")
+    text-align: center
+    margin-bottom: 2
+  BotLabel
+    anchors.top: movement.bottom
+    anchors.left: movement.left
+    margin-top: 10
+    !text: tr("Attack")
+  ComboBox
+    id: attack
+    anchors.top: prev.bottom
+    anchors.left: prev.left
+    anchors.right: movement.right
+    text-offset: 15 0
+    margin-top: 2
+    options: 
+      - Full Attack
+      - Balance
+      - Full Defensive
+  BotTextEdit
+    id: spell
+    anchors.top: prev.top
+    anchors.left: danger.left
+    anchors.right: danger.right
+  BotLabel
+    anchors.bottom: prev.top
+    anchors.left: prev.left
+    anchors.right: prev.right
+    margin-bottom: 2
+    !text: tr("Spell/Item")
+    text-align: center
+  BotCheckBox
+    id: follow
+    anchors.top: attack.bottom
+    anchors.left: attack.left
+    margin-top: 7
+    text-auto-resize: true
+    !text: tr("Follow Creature")
+  BotCheckBox
+    id: loot
+    anchors.top: prev.bottom
+    anchors.left: prev.left
+    text-auto-resize: true
+    margin-top: 5
+    !text: tr("Loot")
+  BotButton
+    id: add
+    !text: tr('Del')
+    anchors.top: monsterList.bottom
+    anchors.left: monsterList.left
+    margin-top: 5
+    width: 40
+  BotButton
+    id: add
+    !text: tr("Add")
+    anchors.top: prev.top
+    anchors.right: monsterList.right
+    width: 40
+  BotButton
+    id: edit
+    !text: tr("Edit")
+    anchors.top: prev.top
+    anchors.right: prev.left
+    width: 40
+  BotCheckBox
+    id: run
+    !text: tr("Run Targeting")
+    anchors.bottom: parent.bottom
+    anchors.left: monsterList.left
+    text-auto-resize: true
+  BotCheckBox
+    id: autoAttack
+    !text: tr("Auto Attack")
+    anchors.bottom: prev.top
+    anchors.left: prev.left
+    text-auto-resize: true
+    margin-bottom: 2
+  BotCheckBox
+    id: ignore
+    !text: tr("Ignore Other's Monster")
+    anchors.bottom: prev.top
+    anchors.left: prev.left
+    text-auto-resize: true
+    margin-bottom: 2
+  BotLabel
+    !text: tr("Range Distance")
+    anchors.bottom: prev.top
+    anchors.left: prev.left
+    text-auto-resize: true
+    margin-bottom: 5
+  ComboBox
+    id: range
+    anchors.bottom: prev.bottom
+    anchors.left: prev.right
+    width: 65
+    height: 18
+    margin-left: 10
+    text-offset: 23 2
+    options: 
+      - 10
+      - 9
+      - 8
+      - 7
+      - 6
+      - 5
+      - 4
+      - 3
+      - 2
+      - 1

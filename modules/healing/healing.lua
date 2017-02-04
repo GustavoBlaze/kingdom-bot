@@ -328,7 +328,7 @@ end
 function healing.choosingItem(self, mousePosition, mouseButton)
     if mouseButton == MouseRightButton then
         local menu = g_ui.createWidget('PopupMenu')
-        menu:addOption(tr('Choose Item'), function() healing.startChooseItem(healing.setItemCallback) end)
+        menu:addOption(tr('Choose Item'), function() startChooseItem(healing.setItemCallback) end)
         menu:display(mousePosition)
     end
 end
@@ -342,7 +342,7 @@ function healing.setItemCallback(self, item)
     return true
 end
 
-function healing.startChooseItem(callback) -- Copyied from candybot
+function startChooseItem(callback) -- Copyied from candybot
 
   if not callback then
     error("No mouse release callback parameter set.")

@@ -16,7 +16,6 @@ BotLabel < Label
 BotWindow < Window
   font: my-font
   @onEscape: self:hide()
-  @onEnter: self:hide()
   BotButton
     id: closeButton
     !text: tr("Close")
@@ -35,7 +34,7 @@ NotButton < TopButton
   icon-size: 20 20
   icon-offset: 3 3
   font: my-font
-HealPerfil < UIWidget
+ListBase < UIWidget
   height: 14
   background-color: alpha
   &updateOnStates: |
@@ -47,10 +46,59 @@ HealPerfil < UIWidget
     end
   @onFocusChange: self:updateOnStates()
   @onSetup: self:updateOnStates()
+MosterLabel < ListBase
+  BotLabel
+    id: name
+    color: #aaaaaa
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-offset: 2 0
+    text-align: center
+    $on:
+      color: #ffffff
+  BotLabel
+    id: minRange
+    anchors.left: prev.left
+    anchors.top: parent.top
+    width: 0
+  BotLabel
+    id: maxRange
+    anchors.left: prev.left
+    anchors.top: parent.top
+    width: 0
+  BotLabel
+    id: movement
+    anchors.left: prev.left
+    anchors.top: parent.top
+    width: 0
+  BotLabel
+    id: danger
+    anchors.left: prev.left
+    anchors.top: parent.top
+    width: 0
+  BotLabel
+    id: attack
+    anchors.left: prev.left
+    anchors.top: parent.top
+    width: 0
+  BotLabel
+    id: spell
+    anchors.left: prev.left
+    anchors.top: parent.top
+    width: 0
+  BotLabel
+    id: follow
+    anchors.left: prev.left
+    anchors.top: parent.top
+    width: 0
+  BotLabel
+    id: loot
+    anchors.left: prev.left
+    anchors.top: parent.top
+    width: 0
 
-  $focus:
-    background-color: #ffffff22
-
+HealPerfil < ListBase
   BotLabel
     id: type
     color: #bbbbbb
@@ -128,11 +176,19 @@ BotWindow
   width: 350
   height: 200
   @onEscape: modules.kingdom_bot.toggle()
-  @onEnter: modules.kingdom_bot.toggle()
 
   BotButton
     id: healingButton
     !text: tr("Healing")
-    width: 70
+    width: 85
     anchors.top: parent.top
     anchors.left: parent.left
+    !tooltip: tr("Healing you and your friends")
+  BotButton
+    id: targetingButton
+    !text: tr("Targeting")
+    width: 85
+    anchors.top: prev.top
+    anchors.left: prev.right
+    margin-left: 5
+    !tooltip: tr("Attacking creatures")
