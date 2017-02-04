@@ -4,7 +4,7 @@ como os que já existem para o client de tibia comum(criado pela cipsoft),
 bots como elfbot, redbot, ibot, e candybot(bot para otclient), serve de
 inspiração para este projeto.
 
-Ainda esta em fase de construção, mas já tenho alguns planos de funçãos a serem
+Ainda esta em fase de construção, mas já tenho alguns planos de funções a serem
 implementadas nesse bot, coisas como:
 
 - Auto Heal com friend list (já está funcionando)
