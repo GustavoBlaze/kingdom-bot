@@ -8,9 +8,9 @@ Ainda esta em fase de construção, mas já tenho alguns planos de funçãos a s
 implementadas nesse bot, coisas como:
 
 - Auto Heal com friend list (já está funcionando)
-- Targetting
-- Lotting
-- Cavebotting
+- Targeting
+- Looting
+- Cavebot
 
 Essas sao as coisas principais pra a serem implementadas, mas não sao as
 unica. Quero colocar muito mais coisas e realmente fazer um bot completo.
