@@ -30,8 +30,6 @@ function targeting.init()
     targeting.run = windowChild('run')
     targeting.range = windowChild('range')
 
-    targeting.Targets = {}
-
 end
 
 function targeting.toggle()
@@ -46,7 +44,6 @@ end
 function targeting.terminate()
    targeting.window:destroy()
    targeting.stopEvent()
-   targeting.Targets = nil
 end
 
 function targeting.choosingItem(self, mousePosition, mouseButton)
@@ -96,27 +93,20 @@ function targeting.addTargetToList(name, min, max, movement, danger, attack, spe
         end
     end
 
-    targeting.Targets[target.id] = target
-
     item:setId(target.id)
 
     targeting.newSettings()
 end
 
-function targeting.removeTargetFromList(id)
-    if not id then
+function targeting.removeTargetFromList(name)
+    if not name then
         local item = targeting.monsterList:getFocusedChild()
         if not item then
             return print("You need select the target on list to remove")
         end
-        targeting.Targets[item:getId()] = nil
         item:destroy()
     else
-       if targeting.Targets[id] then
-           targeting.Targets[id] = nil
-       else
-           return print("This target not exists on list")
-       end
+
     end
 end
 
@@ -127,7 +117,6 @@ function targeting.editTarget()
         return
     end
     
-    targeting.Targets[item:getId()] = nil
 
     targeting.name:setText(item:getChildById('name'):getText())
     targeting.min:setText(item:getChildById('min'):getText())
@@ -162,7 +151,9 @@ function targeting.executeTargeting()
     	return
     end
 
-    if table.size(targeting.Targets) == 0 then
+    local list = targeting.getTargetList()
+
+    if table.size(list) == 0 then
     	return
     end
 
@@ -172,7 +163,7 @@ function targeting.executeTargeting()
     end
 
     local targetList = {}
-    for k,v in pairs(targeting.Targets) do
+    for k,v in pairs(list) do
         table.insert(targetList, v.name:lower())
     end
     
@@ -185,6 +176,9 @@ function targeting.executeTargeting()
     local attackingCreature = g_game.getAttackingCreature()
 
     if attackingCreature then
+    	if attackingCreature:isDead() or attackingCreature:isRemoved() then
+    		g_game.cancelAttack()
+    	end
         local health = attackingCreature:getHealthPercent()
         local settings = targeting.getCreatureSettings(attackingCreature)
         local distance = player:getCreatureDistance(attackingCreature)
@@ -228,7 +222,9 @@ function targeting.executeTargeting()
         end
 
         targeting.useItemOrSpell(attackingCreature, settings)
-       
+        
+        targeting.doMovement(player, attackingCreature, settings)
+
     elseif attackingCreature == nil then
 
         local TCreatures = {}
@@ -266,6 +262,29 @@ function targeting.executeTargeting()
     end
 end
 
+function targeting.getTargetList()
+	local targets = {} 
+
+	local list = targeting.monsterList:getChildren()
+	if #list == 0 then
+		return targets
+	end
+
+	for k,v in pairs(list) do
+        local target = Target.create(v:getChildById('name'):getText(),
+        	v:getChildById('min'):getText(),
+        	v:getChildById('max'):getText(),
+        	v:getChildById('movement'):getText(),
+        	v:getChildById('danger'):getText(),
+            v:getChildById('attack'):getText(),
+            v:getChildById('spell'):getText(),
+            v:getChildById('follow'):getText(),
+            v:getFocusedChild('loot'))
+        table.insert(targets, target)
+	end
+    
+	return targets
+end
 function targeting.useItemOrSpell(creature, settings)
     if settings.spell == '' then
     	return
@@ -288,8 +307,22 @@ function targeting.useItemOrSpell(creature, settings)
     end
 end
 
-local function getDistanceBetween(p1, p2)
-    return math.max(math.abs(p1.x - p2.x), math.abs(p1.y - p2.y))
+function targeting.doMovement(player, creature, settings)
+    if settings.movement == "No Movement" then
+    	return
+    end
+
+    if settings.movement == "Diagonal" then
+        local diagonals, result = player:getDiagonals(creature)
+
+        if #diagonals == 0 and result == true then
+            return -- player position and creature position is the same
+        elseif diagonals == 0 and result == false then
+    	    return -- is not possible walk to diagonal
+        elseif #diagonals > 0 and result == true then
+            g_game.autoWalk(diagonals[1])
+        end
+    end
 end
 function targeting.filterByRange(TCreatures)
 	local temp
@@ -306,7 +339,7 @@ function targeting.filterByRange(TCreatures)
 end
 
 function targeting.getCreatureSettings(creature)
-    for k,v in pairs(targeting.Targets) do
+    for k,v in pairs(targeting.getTargetList()) do
         if creature:getName():lower() == v.name:lower() then
             return v
         end

@@ -51,20 +51,6 @@ function Creature:getTargetsInArea(targetList, pathableOnly)
     return targets
 end
 
-function Creature:getCreatureDistance(creature)
-	local p1 = self:getPosition()
-	local p2 = creature:getPosition()
-    
-    if not p2 then
-    	return 1000
-    end
-
-    if p1.z ~= p2.z then
-    	return 1000
-    end
-
-    return math.max(math.abs(p1.x - p2.x), math.abs(p1.y - p2.y))
-end
 function Creature:canStandBy(creature)
     if not creature then
         return false
@@ -96,4 +82,83 @@ function Creature:canStandBy(creature)
         end
     end
     return false
+end
+
+local function getDistanceBetween(p1, p2)
+    return math.max(math.abs(p1.x - p2.x), math.abs(p1.y - p2.y))
+end
+
+function Creature:getCreatureDistance(creature)
+	if not creature then
+		return 1000
+	end
+
+	local p1 = self:getPosition()
+	local p2 = creature:getPosition()
+    
+    if not p2 then
+    	return 1000
+    end
+
+    if p1.z ~= p2.z then
+    	return 1000
+    end
+
+    return getDistanceBetween(p1, p2)
+end
+
+function filterPaths(paths)
+	local temp
+    for i=1, #paths do
+       for j=i+1, #paths do
+          if #paths[i] > #paths[j] then
+              temp = paths[i]
+              paths[i]=paths[j]
+              paths[j]=temp
+          end
+       end
+    end
+    return paths
+end
+
+
+
+function Creature:getDiagonals(creature)
+	local diagonals = {}
+    
+    if not creature then
+    	return diagonals, false
+    end
+
+    local myPos = self:getPosition()
+    local otherPos = creature:getPosition()
+
+    local neighbours = {
+        {x = -1, y = -1, z = 0},
+        {x = 1, y = -1, z = 0},
+        {x = -1, y = 1, z = 0},
+        {x = 1, y = 1, z = 0}
+    }
+
+   
+    for k,v in pairs(neighbours) do
+        local checkPos = {x = (otherPos.x + v.x), y = (otherPos.y + v.y), z = (otherPos.z + v.z)}
+
+        if postostring(myPos) == postostring(checkPos) then
+        	local arr = {}
+            return arr, true
+        end
+
+        -- Check if there is a path
+        local steps, result = g_map.findPath(myPos, checkPos, 40000, 0)
+        if result == PathFindResults.Ok then
+            table.insert(diagonals, steps)
+        end
+    end
+
+    if #diagonals == 0 then
+        return diagonals, false
+    else
+        return filterPaths(diagonals), true
+    end
 end
