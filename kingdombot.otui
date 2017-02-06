@@ -46,6 +46,8 @@ ListBase < UIWidget
     end
   @onFocusChange: self:updateOnStates()
   @onSetup: self:updateOnStates()
+  $focus:
+    background-color: #A9A9A9
 MosterLabel < ListBase
   BotLabel
     id: name
@@ -54,50 +56,49 @@ MosterLabel < ListBase
     anchors.left: parent.left
     anchors.right: parent.right
     text-offset: 2 0
-    text-align: center
+    text-align: left
     $on:
       color: #ffffff
   BotLabel
-    id: minRange
+    id: min
     anchors.left: prev.left
     anchors.top: parent.top
-    width: 0
+    visible: false
   BotLabel
-    id: maxRange
+    id: max
     anchors.left: prev.left
     anchors.top: parent.top
-    width: 0
+    visible: false
   BotLabel
     id: movement
     anchors.left: prev.left
     anchors.top: parent.top
-    width: 0
+    visible: false
   BotLabel
     id: danger
     anchors.left: prev.left
     anchors.top: parent.top
-    width: 0
+    visible: false
   BotLabel
     id: attack
     anchors.left: prev.left
     anchors.top: parent.top
-    width: 0
+    visible: false
   BotLabel
     id: spell
     anchors.left: prev.left
     anchors.top: parent.top
-    width: 0
+    visible: false
   BotLabel
     id: follow
     anchors.left: prev.left
     anchors.top: parent.top
-    width: 0
+    visible: false
   BotLabel
     id: loot
     anchors.left: prev.left
     anchors.top: parent.top
-    width: 0
-
+    visible: false
 HealPerfil < ListBase
   BotLabel
     id: type
@@ -109,6 +110,7 @@ HealPerfil < ListBase
     text-align: center
     text-offset: 2 0
     @onTextChange: if self:getText() == "Mana" then self:setColor("#0000FF") elseif self:getText() == "Health" then self:setColor("#FF0000") elseif self:getText() == "Friend" then self:setColor("#FF8C00") end
+
   BotLabel
     id: spell
     color: #bbbbbb
@@ -157,8 +159,6 @@ FriendLabel < UIWidget
   @onFocusChange: self:updateOnStates()
   @onSetup: self:updateOnStates()
 
-  $focus:
-    background-color: #ffffff22
 
   BotLabel
     id: name

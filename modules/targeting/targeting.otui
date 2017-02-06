@@ -33,13 +33,13 @@ BotWindow
     margin-top: 10
     !text: tr("Name")
   BotTextEdit
-    id: mosterName
+    id: name
     anchors.top: prev.bottom
     anchors.left: prev.left
     width: 120
     margin-top: 2
   BotTextEdit
-    id: minHPRange
+    id: min
     anchors.top: prev.top
     anchors.left: prev.right
     margin-left: 10
@@ -52,29 +52,29 @@ BotWindow
     margin-left: 5
     !text: tr("to")
   BotTextEdit
-    id: maxHPRange
-    anchors.top: minHPRange.top
+    id: max
+    anchors.top: min.top
     anchors.left: prev.right
     margin-left: 5
     width: 30
     text: 100
   BotLabel
-    anchors.bottom: maxHPRange.top
-    anchors.left: minHPRange.left
-    anchors.right: maxHPRange.right
+    anchors.bottom: max.top
+    anchors.left: min.left
+    anchors.right: max.right
     margin-bottom: 2
     !text: tr("HP Range")
     text-align: center
   BotLabel
-    anchors.top: mosterName.bottom
-    anchors.left: mosterName.left
+    anchors.top: name.bottom
+    anchors.left: name.left
     margin-top: 10
     !text: tr("Movement")
   ComboBox
     id: movement
     anchors.top: prev.bottom
-    anchors.left: mosterName.left
-    anchors.right: mosterName.right
+    anchors.left: name.left
+    anchors.right: name.right
     text-offset: 15 0
     margin-top: 2
     options: 
@@ -83,20 +83,20 @@ BotWindow
   ComboBox
     id: danger
     anchors.top: movement.top
-    anchors.left: minHPRange.left
-    anchors.right: maxHPRange.right
+    anchors.left: min.left
+    anchors.right: max.right
     text-offset: 35 0
     options: 
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
       - 10
+      - 9
+      - 8
+      - 7
+      - 6
+      - 5
+      - 4
+      - 3
+      - 2
+      - 1
   BotLabel
     anchors.bottom: prev.top
     anchors.left: prev.left
@@ -147,44 +147,34 @@ BotWindow
     margin-top: 5
     !text: tr("Loot")
   BotButton
-    id: add
+    id: del
     !text: tr('Del')
     anchors.top: monsterList.bottom
     anchors.left: monsterList.left
     margin-top: 5
     width: 40
+    @onClick: modules.kingdom_bot.targeting.removeTargetFromList()
   BotButton
     id: add
     !text: tr("Add")
     anchors.top: prev.top
     anchors.right: monsterList.right
     width: 40
+    @onClick: modules.kingdom_bot.targeting.addTargetToList()
   BotButton
     id: edit
     !text: tr("Edit")
     anchors.top: prev.top
     anchors.right: prev.left
     width: 40
+    @onClick: modules.kingdom_bot.targeting.editTarget()
   BotCheckBox
     id: run
     !text: tr("Run Targeting")
     anchors.bottom: parent.bottom
     anchors.left: monsterList.left
     text-auto-resize: true
-  BotCheckBox
-    id: autoAttack
-    !text: tr("Auto Attack")
-    anchors.bottom: prev.top
-    anchors.left: prev.left
-    text-auto-resize: true
-    margin-bottom: 2
-  BotCheckBox
-    id: ignore
-    !text: tr("Ignore Other's Monster")
-    anchors.bottom: prev.top
-    anchors.left: prev.left
-    text-auto-resize: true
-    margin-bottom: 2
+    @onCheckChange: if self:isChecked() then modules.kingdom_bot.targeting.startEvent() else modules.kingdom_bot.targeting.stopEvent() end
   BotLabel
     !text: tr("Range Distance")
     anchors.bottom: prev.top
@@ -199,9 +189,7 @@ BotWindow
     height: 18
     margin-left: 10
     text-offset: 23 2
-    options: 
-      - 10
-      - 9
+    options:
       - 8
       - 7
       - 6

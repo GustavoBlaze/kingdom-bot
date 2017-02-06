@@ -2,6 +2,8 @@ healing = {}
 
 local friend_event = nil
 local nextHeal = {}
+local HealthDelay = 500
+local ManaDelay = 1000
 
 function healing.init()
     healing.window = g_ui.displayUI("healing.otui")
@@ -137,11 +139,11 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, oldMaxHeal
 
     for key, params in pairs(healing.types['Health']) do
         local spell = tonumber(params[2]) or params[2]
-        if type(spell) == 'string' then
-            local delay = 0
-            local life = player:getHealthPercent()
-            local healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
-            if (life >= healthMin and life <= healthMax) then
+        local life = player:getHealthPercent()
+        local healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
+        if (life >= healthMin and life <= healthMax) then
+            local runEvent = false
+            if type(spell) == "string" then
                 local say, match
                 match = spell:match("exura sio")
                 if match then
@@ -150,10 +152,14 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, oldMaxHeal
                    say = spell
                 end
                 g_game.talk(say)
+                runEvent = true
+            elseif type(spell) == "number" then
+                g_game.useInventoryItemWith(spell, player)
+                runEvent = true
             end
-                delay = 500
-            removeEvent(nextHeal['health'])
-            nextHeal['health'] = scheduleEvent(function()
+            if runEvent then
+                removeEvent(nextHeal['health'])
+                nextHeal['health'] = scheduleEvent(function()
                 local player = g_game.getLocalPlayer()
                 if not player then
                     return
@@ -167,34 +173,9 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, oldMaxHeal
                     removeEvent(nextHeal['health'])
                     nextHeal['health'] = nil
                 end
-            end, delay)
-            break
-        elseif type(spell) == 'number' then
-            local delay = 0
-            local life = player:getHealthPercent()
-            local healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
-            if (life >= healthMin and life <= healthMax) then
-                local itemId = spell
-                g_game.useInventoryItemWith(itemId, g_game.getLocalPlayer())
+                end, HealthDelay)
+                break
             end
-            delay = 500
-            removeEvent(nextHeal['health'])
-            nextHeal['health'] = scheduleEvent(function()
-                player = g_game.getLocalPlayer()
-                if not player then
-                    return
-                end
-                local life = player:getHealthPercent()
-                health, maxHealth = player:getHealth(), player:getMaxHealth()
-                if (life >= healthMin and life <= healthMax and try > 0) then
-                    try = try - 1
-                    healing.onHealthChange(player, health, maxHealth, health, maxHealth, try)
-                else
-                    removeEvent(nextHeal['health'])
-                    nextHeal['health'] = nil              
-                end
-            end, delay)
-            break
         end
     end
 end
@@ -216,8 +197,6 @@ function healing.onManaChange(player, mana, maxMana, oldMana, oldMaxMana, try)
             g_game.useInventoryItemWith(itemId, player)
         end
 
-        delay = 1000
-
         removeEvent(nextHeal['mana'])
         nextHeal['mana'] = scheduleEvent(function()
             local player = g_game.getLocalPlayer()
@@ -236,7 +215,7 @@ function healing.onManaChange(player, mana, maxMana, oldMana, oldMaxMana, try)
                 nextHeal['mana'] = nil
                 
             end
-        end, delay)
+        end, ManaDelay)
         break
     end
 end
@@ -269,7 +248,6 @@ function healing.startHealFriend()
             for a, creature in pairs(creatures) do
                 for b, name in pairs(friends) do
                     if creature:getName():lower() == name:lower() then
-
                         for c, params in pairs(healing.types['Friend']) do
                             local spell = tonumber(params[2]) or params[2]
                             local min,max = tonumber(params[3]), tonumber(params[4])
@@ -337,7 +315,6 @@ function healing.setItemCallback(self, item)
     if item then
         local str = tostring(item:getId())
         healing.spell:setText(str)
-        healing.toggle()
     end
     return true
 end
@@ -385,6 +362,5 @@ function startChooseItem(callback) -- Copyied from candybot
   mouseGrabberWidget:grabMouse()
   g_mouse.pushCursor('target')
 
-  healing.toggle()
 end
 return healing
