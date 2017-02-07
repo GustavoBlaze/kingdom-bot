@@ -1,10 +1,15 @@
 targeting = {}
 
-dofile('class.lua')
+dofile('extension.lua')
 
 targeting.event = nil
 local m_delay = 1000
 local m_spellTime = 0
+local attackMode = {
+	['Full Attack'] = FightOffensive or 1,
+	['Balance'] = FightBalanced or 2,
+	['Full Defensive'] = FightDefensive or 3
+}
 
 local function windowChild(id)
 	return targeting.window:getChildById(id)
@@ -29,9 +34,37 @@ function targeting.init()
 
     targeting.run = windowChild('run')
     targeting.range = windowChild('range')
-
+    
+    targeting.installHookMenu()
 end
 
+function targeting.installHookMenu()
+	modules.game_interface.addMenuHook("targeting", tr("Add Target"), 
+        function(menuPosition, lookThing, useThing, creatureThing)
+            targeting.createTargetFromName(creatureThing:getName())
+        end,
+        function(menuPosition, lookThing, useThing, creatureThing)
+            return lookThing ~= nil and creatureThing ~= nil and creatureThing:isMonster() and creatureThing:getName() ~= nil
+        end)
+end
+
+function targeting.removeHook()
+	modules.game_interface.removeMenuHook("targeting", tr("Add Target"))
+end
+
+function targeting.createTargetFromName(name)
+	if not name then
+		return
+	end
+
+    if targeting.window:isVisible() then
+        targeting.name:setText(name)
+    else
+        targeting.window:show()
+        targeting.window:focus()
+        targeting.name:setText(name)
+    end
+end
 function targeting.toggle()
     if targeting.window:isVisible() then
         targeting.window:hide()
@@ -42,8 +75,9 @@ function targeting.toggle()
 end
 
 function targeting.terminate()
-   targeting.window:destroy()
-   targeting.stopEvent()
+    targeting.removeHook()
+    targeting.window:destroy()
+    targeting.stopEvent()
 end
 
 function targeting.choosingItem(self, mousePosition, mouseButton)
@@ -211,15 +245,9 @@ function targeting.executeTargeting()
             return
         end
         
-        local chaseMode = toboolean(g_game.getChaseMode())
-        local follow = toboolean(settings.follow)
-        if follow ~= chaseMode then
-           if follow then
-               g_game.setChaseMode(ChaseOpponent)
-           else
-               g_game.setChaseMode(DontChase)
-           end
-        end
+        targeting.chaseMode(settings)
+        
+        targeting.pvpMode(settings)
 
         targeting.useItemOrSpell(attackingCreature, settings)
         
@@ -246,19 +274,31 @@ function targeting.executeTargeting()
             if health >= tonumber(settings.min) and health <= tonumber(settings.max) 
             	and player:getCreatureDistance(v.creature) <= tonumber(targeting.range:getCurrentOption().text) then
                 g_game.attack(v.creature)
-
-                local chaseMode = toboolean(g_game.getChaseMode())
-                local follow = toboolean(settings.follow)
-                if follow ~= chaseMode then
-                   if follow then
-                       g_game.setChaseMode(ChaseOpponent)
-                   else
-                       g_game.setChaseMode(DontChase)
-                   end
-                end
+                targeting.chaseMode(settings)
+                targeting.pvpMode(settings)
                 break
             end
         end
+    end
+end
+
+function targeting.chaseMode(settings) -- follow creature
+    local chaseMode = toboolean(g_game.getChaseMode())
+    local follow = toboolean(settings.follow)
+    if follow ~= chaseMode then
+       if follow then
+           g_game.setChaseMode(ChaseOpponent)
+       else
+           g_game.setChaseMode(DontChase)
+       end
+    end
+end
+
+function targeting.pvpMode(settings)
+    local fightMode = g_game.getFightMode()
+    local pvpMode = settings.attack
+    if attackMode[pvpMode] ~= fightMode then
+        g_game.setFightMode(attackMode[pvpMode])
     end
 end
 
@@ -324,6 +364,7 @@ function targeting.doMovement(player, creature, settings)
         end
     end
 end
+
 function targeting.filterByRange(TCreatures)
 	local temp
     for i=1, #TCreatures do

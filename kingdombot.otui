@@ -192,3 +192,11 @@ BotWindow
     anchors.left: prev.right
     margin-left: 5
     !tooltip: tr("Attacking creatures")
+  BotButton
+    id: lootingButton
+    !text: tr("Looting")
+    width: 85
+    anchors.top: prev.top
+    anchors.left: prev.right
+    margin-left: 5
+    !tooltip: tr("Loot")

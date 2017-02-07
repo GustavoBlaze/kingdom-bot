@@ -1,5 +1,6 @@
 dofile('modules/healing/healing.lua')
 dofile('modules/targeting/targeting.lua')
+dofile('modules/looting/looting.lua')
 
 g_button = nil
 g_window = nil
@@ -14,11 +15,15 @@ function init()
     
     healing.init()
     targeting.init()
-    
+    looting.init()
+
     optionsButton['healing'] = g_window:getChildById('healingButton')
     optionsButton['targeting'] = g_window:getChildById('targetingButton')
+    optionsButton['looting'] = g_window:getChildById('lootingButton')
+
     optionsButton['healing'].onClick = healing.toggle
     optionsButton['targeting'].onClick = targeting.toggle
+    optionsButton['looting'].onClick = looting.toggle
 end
 
 function toggle()
@@ -38,6 +43,8 @@ end
 
 function terminate()
     healing.terminate()
+    targeting.terminate()
+    looting.terminate()
 
     g_window:destroy()
     g_button:destroy()

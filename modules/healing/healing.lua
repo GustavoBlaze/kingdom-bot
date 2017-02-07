@@ -130,19 +130,23 @@ function healing.terminate()
     healing.stopHealFriend()
 end
 
-function healing.onHealthChange(player, health, maxHealth, oldHealth, oldMaxHealth, try)
+function healing.onHealthChange(player, health, maxHealth, oldHealth, try)
 	if not healing.window:getChildById('enableHeal'):isChecked() then
         return
 	end
 
     local try = try or 10
 
+    local life = ((health*100)/maxHealth)
+
     for key, params in pairs(healing.types['Health']) do
+
         local spell = tonumber(params[2]) or params[2]
-        local life = player:getHealthPercent()
         local healthMin, healthMax = tonumber(params[3]), tonumber(params[4])
+
         if (life >= healthMin and life <= healthMax) then
             local runEvent = false
+
             if type(spell) == "string" then
                 local say, match
                 match = spell:match("exura sio")
@@ -151,6 +155,7 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, oldMaxHeal
                 else
                    say = spell
                 end
+
                 g_game.talk(say)
                 runEvent = true
             elseif type(spell) == "number" then
@@ -158,21 +163,19 @@ function healing.onHealthChange(player, health, maxHealth, oldHealth, oldMaxHeal
                 runEvent = true
             end
             if runEvent then
-                removeEvent(nextHeal['health'])
                 nextHeal['health'] = scheduleEvent(function()
-                local player = g_game.getLocalPlayer()
-                if not player then
-                    return
-                end
-                local life = player:getHealthPercent()
-                health, maxHealth = player:getHealth(), player:getMaxHealth()
-                if life >= healthMin and life <= healthMax and try > 0 then
-                    try = try - 1
-                    healing.onHealthChange(player, health, maxHealth, health, maxHealth, try)
-                else
-                    removeEvent(nextHeal['health'])
-                    nextHeal['health'] = nil
-                end
+                    local player = g_game.getLocalPlayer()
+                    if not player then
+                        return
+                    end
+                    local life = player:getHealthPercent()
+                    health, maxHealth = player:getHealth(), player:getMaxHealth()
+                    if life >= healthMin and life <= healthMax and try > 0 then
+                        try = try - 1
+                        healing.onHealthChange(player, health, maxHealth, health, try)
+                    else
+                        removeEvent(nextHeal['health'])
+                    end
                 end, HealthDelay)
                 break
             end
@@ -192,7 +195,6 @@ function healing.onManaChange(player, mana, maxMana, oldMana, oldMaxMana, try)
         local delay = 0
         local manaPercent = player:getManaPercent()
         manaMin, manaMax = tonumber(params[3]), tonumber(params[4])
-
         if manaPercent >= manaMin and manaPercent <= manaMax then
             g_game.useInventoryItemWith(itemId, player)
         end
@@ -292,14 +294,19 @@ function healing.executeHeal()
 	    end
 	end
 end
+
+function healing.healHealthListener(player, health, maxHealth, oldHealth)
+    healing.onHealthChange(player, health, maxHealth, oldHealth)
+end
+
 function healing.connectHealistener()
 	healing.executeHeal()
-    connect(LocalPlayer, {onHealthChange =  healing.onHealthChange})
+    connect(LocalPlayer, {onHealthChange =  healing.healHealthListener})
     connect(LocalPlayer, {onManaChange = healing.onManaChange})
 end
 
 function healing.disconnectHealListener()
-    disconnect(LocalPlayer, {onHealthChange =  healing.onHealthChange})
+    disconnect(LocalPlayer, {onHealthChange =  healing.healHealthListener})
     disconnect(LocalPlayer, {onManaChange =  healing.onManaChange})
 end
 

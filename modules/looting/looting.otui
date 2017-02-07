@@ -1,0 +1,51 @@
+BotWindow
+  id: lootingWindow
+  !text: tr("Looting")
+  size: 300 400
+
+  TextList
+    id: itemList
+    anchors.top: parent.top
+    anchors.left: parent.left
+    height: 250
+    width: 220
+    margin-top: 15
+    margin-left: 25
+    padding: 1
+    phantom: true
+    auto-focus: last
+    vertical-scrollbar: itemScrollBar
+  BotLabel
+    !text: tr("Loot List")
+    anchors.bottom: prev.top
+    anchors.left: prev.left
+    anchors.right: prev.right
+    margin-bottom: 2
+    text-align: center
+  VerticalScrollBar
+    id: itemScrollBar
+    anchors.top: itemList.top
+    anchors.right: itemList.right
+    anchors.bottom: itemList.bottom
+    step: 18
+    pixels-scroll: true
+  BotButton
+    id: deleteButton
+    !text: tr("Delete")
+    text-auto-resize: true
+    anchors.top: itemList.bottom
+    anchors.right: itemList.right
+    margin-top: 5
+  BotButton
+    id: addButton
+    !text: tr("Add")
+    text-auto-resize: true
+    anchors.top: prev.top
+    anchors.right: prev.left
+    margin-right: 2
+  BotTextEdit
+    id: itemText
+    anchors.top: prev.top
+    anchors.right: prev.left
+    anchors.left: itemList.left
+    margin-right: 2
