@@ -36,6 +36,7 @@ BotWindow
     anchors.top: itemList.bottom
     anchors.right: itemList.right
     margin-top: 5
+    @onClick: modules.kingdom_bot.looting.removeItemFromList()
   BotButton
     id: addButton
     !text: tr("Add")
@@ -43,6 +44,7 @@ BotWindow
     anchors.top: prev.top
     anchors.right: prev.left
     margin-right: 2
+    @onClick: modules.kingdom_bot.looting.addItemToList()
   BotTextEdit
     id: itemText
     anchors.top: prev.top

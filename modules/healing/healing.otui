@@ -178,6 +178,7 @@ BotWindow
     minimum: 1
     maximum: 100
     width: 180
+    value: 90
   BotLabel
     id: alertLabel
     anchors.left: prev.left

@@ -146,20 +146,7 @@ HealPerfil < ListBase
     text-offset: 2 0
     $on:
       color: #ffffff
-FriendLabel < UIWidget
-  height: 14
-  background-color: alpha
-  &updateOnStates: |
-    function(self)
-      local children = self:getChildren()
-      for i=1,#children do
-        children[i]:setOn(self:isFocused())
-      end
-    end
-  @onFocusChange: self:updateOnStates()
-  @onSetup: self:updateOnStates()
-
-
+FriendLabel < ListBase
   BotLabel
     id: name
     color: #FF8C00
@@ -169,7 +156,18 @@ FriendLabel < UIWidget
     background-color: alpha
     text-align: left
     text-offset: 2 0
-
+LootWidget < ListBase
+  BotLabel
+    id: itemId
+    color: #aaaaaa
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-offset: 2 0
+    text-align: left
+    $on:
+      color: #ffffff
+  
 BotWindow
   !text: tr("Kingdom Bot")
   id: menu
