@@ -160,8 +160,8 @@ FriendLabel < ListBase
 BotWindow
   !text: tr("Kingdom Bot")
   id: menu
-  width: 350
-  height: 200
+  width: 377
+  height: 110
   @onEscape: modules.kingdom_bot.toggle()
 
   BotButton
@@ -177,7 +177,7 @@ BotWindow
     width: 85
     anchors.top: prev.top
     anchors.left: prev.right
-    margin-left: 5
+    margin-left: 3
     !tooltip: tr("Attacking creatures")
   BotButton
     id: lootingButton
@@ -185,5 +185,13 @@ BotWindow
     width: 85
     anchors.top: prev.top
     anchors.left: prev.right
-    margin-left: 5
+    margin-left: 3
     !tooltip: tr("Loot")
+  BotButton
+    id: utilsButton
+    !text: tr("Utils")
+    width: 85
+    anchors.top: prev.top
+    anchors.left: prev.right
+    margin-left: 3
+    !tooltip: tr("Extras functions")

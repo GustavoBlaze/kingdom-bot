@@ -304,7 +304,7 @@ end
 function looting.toggle()
   if looting.window then
     if looting.window:isVisible() then
-      looting:hide()
+      looting.window:hide()
     else
       looting.window:show()
       looting.window:focus(true)
