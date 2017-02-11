@@ -99,11 +99,11 @@ end
 function looting.run()
   local m_millis, catching = looting.getCatch()
 
-  if catching and g_clock.millis() - m_millis > 20000 then
+  if catching and g_clock.millis() - m_millis > 10000 then
     looting.stop()
     looting.stopCatch()
     return
-  elseif catch and g_clock.millis() - m_millis < 20000 then
+  elseif catch and g_clock.millis() - m_millis < 10000 then
   	return
   end
 
@@ -270,7 +270,7 @@ function looting.moveLoot(container, try)
       scheduleEvent(function()
       	try = try - 1
       	looting.moveLoot(container, try) 
-      end, 50)
+      end, 150)
     end
   end
 end

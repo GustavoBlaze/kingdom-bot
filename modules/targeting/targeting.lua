@@ -214,7 +214,7 @@ function targeting.executeTargeting()
 
   local millis, catching = modules.kingdom_bot.looting.getCatch()
 
-  if catching and g_clock.millis() - millis > 20000 then
+  if catching and g_clock.millis() - millis > 10000 then
     return modules.kingdom_bot.looting.run()
   end
 

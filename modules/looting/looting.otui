@@ -28,7 +28,7 @@ BotWindow
   id: lootingWindow
   !text: tr("Looting")
   size: 650 300
-  @onEnter: modules.kingdom_bot.looting.addItemToList()
+  @onEnter: local text = self:getChildById("itemText"):getText() modules.kingdom_bot.looting.searching(text, 80)
 
   Panel
     id: panel
