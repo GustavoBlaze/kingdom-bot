@@ -1,53 +1,145 @@
+LootWidget < UICheckBox
+  height: 40
+  background-color: alpha
+
+  UIItem
+    id: item
+    anchors.top: parent.top
+    anchors.left: parent.left
+    phantom: true
+    size: 35 35
+    margin-top: 2
+
+  BotLabel
+    id: name
+    anchors.top: prev.top
+    anchors.left: prev.right
+    phantom: true
+    margin-top: 12
+    margin-left: 15
+
+  $checked:
+    background-color: #00000588
+
+  $!checked:
+    background-color: alpha
+
 BotWindow
   id: lootingWindow
   !text: tr("Looting")
-  size: 300 400
+  size: 650 300
+  @onEnter: modules.kingdom_bot.looting.addItemToList()
 
-  TextList
-    id: itemList
+  Panel
+    id: panel
     anchors.top: parent.top
     anchors.left: parent.left
-    height: 250
-    width: 220
-    margin-top: 15
+    height: 150
+    width: 250
+    margin-top: 50
     margin-left: 25
-    padding: 1
-    phantom: true
-    auto-focus: last
-    vertical-scrollbar: itemScrollBar
-  BotLabel
-    !text: tr("Loot List")
-    anchors.bottom: prev.top
-    anchors.left: prev.left
-    anchors.right: prev.right
-    margin-bottom: 2
-    text-align: center
-  VerticalScrollBar
-    id: itemScrollBar
-    anchors.top: itemList.top
-    anchors.right: itemList.right
-    anchors.bottom: itemList.bottom
-    step: 18
-    pixels-scroll: true
+
+    VerticalScrollBar
+      id: itemScrollBar
+      anchors.top: parent.top
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      step: 24
+      pixels-scroll: true
+
+    ScrollablePanel
+      id: searchItems
+      vertical-scrollbar: itemScrollBar
+      anchors.top: parent.top
+      anchors.right: parent.right
+      anchors.left: parent.left
+      anchors.bottom: parent.bottom
+      margin-right: 15
+      margin-left: 3
+      margin-top: 3
+      margin-bottom: 2
+      border-width: 1
+      border-color: #000000
+      background: #00000066
+      layout:
+        type: verticalBox
+        cell-size: 100 35
+        flow: true
+        auto-spacing: true
   BotButton
-    id: deleteButton
-    !text: tr("Delete")
+    anchors.bottom: panel.top
+    anchors.right: panel.right
+    margin-bottom: 8
+    !text: tr("Search")
     text-auto-resize: true
-    anchors.top: itemList.bottom
-    anchors.right: itemList.right
-    margin-top: 5
-    @onClick: modules.kingdom_bot.looting.removeItemFromList()
-  BotButton
-    id: addButton
-    !text: tr("Add")
-    text-auto-resize: true
-    anchors.top: prev.top
-    anchors.right: prev.left
-    margin-right: 2
-    @onClick: modules.kingdom_bot.looting.addItemToList()
+    @onClick: local text = self:getParent():getChildById("itemText"):getText() modules.kingdom_bot.looting.searching(text, 80)
   BotTextEdit
     id: itemText
-    anchors.top: prev.top
+    anchors.bottom: panel.top
     anchors.right: prev.left
-    anchors.left: itemList.left
-    margin-right: 2
+    anchors.left: panel.left
+    height: 25
+    margin-bottom: 8
+    margin-right: 5
+    @onTextChange: modules.kingdom_bot.looting.searching(self:getText())
+  BotButton
+    id: addButton
+    !text: tr(">>")
+    width: 30
+    anchors.top: panel.top
+    anchors.left: panel.right
+    margin-left: 10
+    !tooltip: tr("Add item to Loot List")
+    @onClick: modules.kingdom_bot.looting.addItemToList()
+  BotButton
+    id: deleteButton
+    !text: tr("<<")
+    width: 30
+    anchors.top: prev.bottom
+    anchors.left: prev.left
+    margin-top: 10
+    !tooltip: tr("Remove item from Loot List")
+    @onClick: modules.kingdom_bot.looting.removeItemFromList()
+
+  Panel
+    id: panel2
+    anchors.top: itemText.top
+    anchors.left: addButton.right
+    anchors.bottom: panel.bottom
+    margin-left: 10
+    width: 250
+
+    VerticalScrollBar
+      id: itemScrollBar2
+      anchors.top: parent.top
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      step: 24
+      pixels-scroll: true
+
+    ScrollablePanel
+      id: catchItems
+      vertical-scrollbar: itemScrollBar2
+      anchors.top: parent.top
+      anchors.right: parent.right
+      anchors.left: parent.left
+      anchors.bottom: parent.bottom
+      margin-right: 15
+      margin-left: 3
+      margin-top: 3
+      margin-bottom: 2
+      border-width: 1
+      border-color: #000000
+      background: #00000066
+      layout:
+        type: verticalBox
+        cell-size: 100 35
+        flow: true
+        auto-spacing: true
+  BotLabel
+    !text: tr("Loot List")
+    anchors.bottom: panel2.top
+    anchors.left: panel2.left
+    anchors.right: panel2.right
+    text-align: center
+    margin-bottom: 2

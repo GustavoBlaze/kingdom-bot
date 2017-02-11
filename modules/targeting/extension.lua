@@ -34,14 +34,14 @@ function TCreature.create(creature, danger)
 end
 
 -- Creature Extensions imported from candybot
-function Creature:getTargetsInArea(targetList, pathableOnly)
+function Creature:getTargetsInArea2(targetList, pathableOnly)
   local targets = {}
   if g_game.isOnline() then
     creatures = g_map.getSpectators(self:getPosition(), false)
     for i, creature in ipairs(creatures) do
       if creature:isMonster() then
         if table.contains(targetList, creature:getName():lower(), true) then
-          if not pathableOnly or creature:canStandBy(self) then
+          if not pathableOnly or creature:canStandBy2(self) then
             table.insert(targets, creature)
           end
         end
@@ -51,12 +51,17 @@ function Creature:getTargetsInArea(targetList, pathableOnly)
   return targets
 end
 
-function Creature:canStandBy(creature)
-  if not creature then
+function Creature:canStandBy2(creature, pos)
+  if not creature and not pos then
     return false
   end
   local myPos = self:getPosition()
-  local otherPos = creature:getPosition()
+  local otherPos
+  if not creature and pos then
+    otherPos = pos
+  elseif not pos and creature then
+    otherPos = creature:getPosition()
+  end
 
   local neighbours = {
     {x = 0, y = -1, z = 0},
@@ -71,6 +76,10 @@ function Creature:canStandBy(creature)
 
   for k,v in pairs(neighbours) do
     local checkPos = {x = myPos.x + v.x, y = myPos.y + v.y, z = myPos.z + v.z}
+    if not otherPos or not checkPos then
+      return false
+    end
+
     if postostring(otherPos) == postostring(checkPos) then
       return true
     end
@@ -88,13 +97,13 @@ local function getDistanceBetween(p1, p2)
   return math.max(math.abs(p1.x - p2.x), math.abs(p1.y - p2.y))
 end
 
-function Creature:getCreatureDistance(creature)
-  if not creature then
+function Creature:getCreatureDistance(creature, pos)
+  if not creature and not pos then
     return 1000
   end
 
   local p1 = self:getPosition()
-  local p2 = creature:getPosition()
+  local p2 = pos or creature:getPosition()
   
   if not p2 then
     return 1000
@@ -107,7 +116,7 @@ function Creature:getCreatureDistance(creature)
   return getDistanceBetween(p1, p2)
 end
 
-function filterPaths(paths)
+local function filterPaths(paths)
   local temp
   for i=1, #paths do
      for j=i+1, #paths do

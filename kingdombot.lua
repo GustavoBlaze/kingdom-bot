@@ -8,7 +8,7 @@ g_window = nil
 optionsButton = {}
 
 function init()
-  g_fonts.importFont("fonts/my-font")
+  g_fonts.importFont("data/fonts/my-font")
   g_button = modules.client_topmenu.addRightToggleButton('kingdom_button', tr('Kingdom Bot'), 'images/bot_icon.png', toggle, true)
   g_window = g_ui.displayUI("kingdombot.otui")
   g_window:hide()

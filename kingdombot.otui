@@ -25,12 +25,12 @@ BotWindow < Window
     @onClick: if self:getParent():getId() == "menu" then modules.kingdom_bot.toggle() else self:getParent():hide() end
 
 OkButton < TopButton
-  icon-source: images/ok_button
+  icon-source: data/images/ok_button
   icon-size: 20 20
   icon-offset: 3 2
   font: my-font
 NotButton < TopButton
-  icon-source: images/not_button
+  icon-source: data/images/not_button
   icon-size: 20 20
   icon-offset: 3 3
   font: my-font
@@ -156,18 +156,7 @@ FriendLabel < ListBase
     background-color: alpha
     text-align: left
     text-offset: 2 0
-LootWidget < ListBase
-  BotLabel
-    id: itemId
-    color: #aaaaaa
-    anchors.top: parent.top
-    anchors.left: parent.left
-    anchors.right: parent.right
-    text-offset: 2 0
-    text-align: left
-    $on:
-      color: #ffffff
-  
+
 BotWindow
   !text: tr("Kingdom Bot")
   id: menu

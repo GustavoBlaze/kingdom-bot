@@ -85,7 +85,8 @@ function targeting.toggle()
     targeting.window:hide()
   else
     targeting.window:show()
-    targeting.window:focus()
+    targeting.window:focus(true)
+    targeting.name:focus(true)
   end
 end
 
@@ -188,8 +189,8 @@ function targeting.newSettings()
   targeting.danger:setCurrentIndex(1)
   targeting.attack:setCurrentIndex(1)
   targeting.spell:setText('')
-  targeting.follow:setChecked(false)
-  targeting.loot:setChecked(false)
+  targeting.follow:setChecked(true)
+  targeting.loot:setChecked(true)
 end
 
 function targeting.executeTargeting()
@@ -211,14 +212,42 @@ function targeting.executeTargeting()
     return
   end
 
+  local millis, catching = modules.kingdom_bot.looting.getCatch()
+
+  if catching and g_clock.millis() - millis > 20000 then
+    return modules.kingdom_bot.looting.run()
+  end
+
+  if modules.kingdom_bot.looting.isRunning() then
+    return
+  end
+
+  if modules.kingdom_bot.looting.stack:size() > 0 then
+    if table.size(modules.kingdom_bot.looting.getLootList()) > 0 then
+      return modules.kingdom_bot.looting.run()
+    end
+  end
+
+
   local targetList = {}
   for k,v in pairs(list) do
     table.insert(targetList, v.name:lower())
   end
   
-  local creatures = player:getTargetsInArea(targetList, true)
+  local creatures = player:getTargetsInArea2(targetList, true)
 
-  if #creatures == 0 then
+  local TCreatures = {}
+    
+  for k,v in pairs(creatures) do
+    local tcreature = TCreature.create(v, tonumber(targeting.getCreatureSettings(v).danger))
+    table.insert(TCreatures, tcreature)
+  end
+  
+  TCreatures = targeting.filterByDanger(TCreatures)
+
+  TCreatures = targeting.filterByRange(TCreatures)
+
+  if #TCreatures == 0 then
     return
   end
 
@@ -231,14 +260,6 @@ function targeting.executeTargeting()
     local health = attackingCreature:getHealthPercent()
     local settings = targeting.getCreatureSettings(attackingCreature)
     local distance = player:getCreatureDistance(attackingCreature)
-    local TCreatures = {}
-    
-    for k,v in pairs(creatures) do
-      local tcreature = TCreature.create(v, tonumber(targeting.getCreatureSettings(v).danger))
-      table.insert(TCreatures, tcreature)
-    end
-  
-    TCreatures = targeting.filterByRange(TCreatures)
 
     for k,v in pairs(TCreatures) do
       local t_settings = targeting.getCreatureSettings(v.creature)
@@ -270,15 +291,6 @@ function targeting.executeTargeting()
 
     targeting.setLastTargetId(attackingCreature:getId())
   elseif attackingCreature == nil then
-
-    local TCreatures = {}
-    
-    for k,v in pairs(creatures) do
-      local tcreature = TCreature.create(v, tonumber(targeting.getCreatureSettings(v).danger))
-      table.insert(TCreatures, tcreature)
-    end
-  
-    TCreatures = targeting.filterByRange(TCreatures)
 
     if g_game.isAttacking() then
       return
@@ -316,7 +328,12 @@ function targeting.canLoot(creature)
   end
 
   if not table.contains(targetList, creature:getName():lower(), true) then
-    print(1)
+    return false
+  end
+
+  local player = g_game.getLocalPlayer()
+
+  if not player:canStandBy2(creature) then
     return false
   end
 
@@ -412,7 +429,7 @@ function targeting.doMovement(player, creature, settings)
   end
 end
 
-function targeting.filterByRange(TCreatures)
+function targeting.filterByDanger(TCreatures)
   local temp
   for i=1, #TCreatures do
     for j=i+1, #TCreatures do
@@ -426,6 +443,34 @@ function targeting.filterByRange(TCreatures)
   return TCreatures
 end
 
+function targeting.filterByRange(TCreatures)
+  local player = g_game.getLocalPlayer()
+
+  for k,v in pairs(TCreatures) do
+    if player:getCreatureDistance(v.creature) > tonumber(targeting.range:getCurrentOption().text) then
+      TCreatures[k] = nil
+    end
+  end
+    
+  if #TCreatures == 0 then
+    return TCreatures
+  end
+  local player = g_game.getLocalPlayer()
+  local temp
+  for i=1, #TCreatures do
+    for j=i+1, #TCreatures do
+      if TCreatures[i] and TCreatures[j] then
+        if player:getCreatureDistance(TCreatures[i].creature) > player:getCreatureDistance(TCreatures[j].creature) then
+          temp = TCreatures[i]
+          TCreatures[i]=TCreatures[j]
+          TCreatures[j]=temp
+        end
+      end
+    end
+  end
+
+  return TCreatures
+end
 function targeting.getCreatureSettings(creature)
   for k,v in pairs(targeting.getTargetList()) do
     if creature:getName():lower() == v.name:lower() then
@@ -442,5 +487,7 @@ end
 
 function targeting.stopEvent()
   removeEvent(targeting.event)
+  modules.kingdom_bot.looting.stack:clear()
+  modules.kingdom_bot.looting.catching = false
   targeting.event = nil
 end
