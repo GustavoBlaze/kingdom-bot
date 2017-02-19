@@ -82,6 +82,12 @@ function looting.onTargetDeath(creature)
     corpse = nil
   }
 
+  local delay
+  if g_game.getClientVersion() <= 980 then
+    delay = 1000
+  else
+    delay = g_game.getPing()
+  end
   scheduleEvent(function()
     local lastTarget = modules.kingdom_bot.targeting.getLastTargetId()
     if lastTarget and lastTarget == creatureId then
@@ -93,7 +99,7 @@ function looting.onTargetDeath(creature)
         looting.stack:push(deadCreature)
       end
     end
-  end, g_game.getPing())
+  end, delay)
 end
 
 function looting.run()
@@ -239,24 +245,26 @@ function looting.moveLoot(container, try)
   local try = try or 20
   local nextCycle = false
   local nextBp = false
+  local nextContainer
   if g_game.isOnline() and table.size(g_game.getContainers()) > 1 then
   	
     if container then
       local list = looting.getLootList()
       local items = container:getItems()
-      for k,v in pairs(items) do
-        if looting.lootFind(list, v:getId()) then
+      local i = #items
+      while i > 0 do
+        if looting.lootFind(list, items[i]:getId()) then
         	nextCycle = true
-        	
-        	looting.moveToBackpack(v, container:getId())
+        	looting.moveToBackpack(items[i], container:getId())
         	break
         else
-          if v:isContainer() then
-            g_game.open(v, v:getParentContainer())
+          if items[i]:isContainer() then
+            g_game.open(items[i], container)
             nextBp = true
             break
           end
         end
+        i = i - 1
       end
     end
   end
@@ -270,7 +278,7 @@ function looting.moveLoot(container, try)
       scheduleEvent(function()
       	try = try - 1
       	looting.moveLoot(container, try) 
-      end, 150)
+      end, 200)
     end
   end
 end
