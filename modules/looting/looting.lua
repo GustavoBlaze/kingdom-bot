@@ -1,6 +1,6 @@
 looting = {}
 
-local arrayOfItems = require("/kingdom-bot/data/items.lua")
+local arrayOfItems = require("items.lua")
 
 dofile("extension.lua")
 
