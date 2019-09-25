@@ -1,7 +1,7 @@
 # Kingdom Bot
 Iniciado em 2017, este projeto visa a criação de um bot amplo
 como os que já existem para o client de tibia comum(criado pela cipsoft),
-bots como elfbot, redbot, tibiaAuto, ibot, e candybot(bot para otclient), e etc. Servem de
+bots como elfbot, redbot, tibiaAuto, ibot, e candybot(bot para otclient), e etc servem de
 inspiração para este projeto.
 
 Ainda esta em fase de construção, mas já tenho alguns planos de funções a serem
